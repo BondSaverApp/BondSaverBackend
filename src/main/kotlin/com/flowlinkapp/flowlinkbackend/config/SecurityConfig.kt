@@ -1,7 +1,7 @@
-package com.uiop07558.socnet.config
+package com.flowlinkapp.flowlinkbackend.config
 
-import com.uiop07558.socnet.auth.JwtTokenProvider
-import com.uiop07558.socnet.filters.JwtAuthenticationFilter
+import com.flowlinkapp.flowlinkbackend.auth.JwtTokenProvider
+import com.flowlinkapp.flowlinkbackend.filters.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity

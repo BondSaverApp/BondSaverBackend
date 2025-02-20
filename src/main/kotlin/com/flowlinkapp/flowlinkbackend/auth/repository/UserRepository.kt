@@ -1,6 +1,6 @@
-package com.uiop07558.socnet.auth.repository
+package com.flowlinkapp.flowlinkbackend.auth.repository
 
-import com.uiop07558.socnet.auth.model.User
+import com.flowlinkapp.flowlinkbackend.auth.model.User
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.MongoRepository
 

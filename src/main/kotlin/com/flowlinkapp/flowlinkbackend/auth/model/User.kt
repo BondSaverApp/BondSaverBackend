@@ -1,4 +1,4 @@
-package com.uiop07558.socnet.auth.model
+package com.flowlinkapp.flowlinkbackend.auth.model
 
 import kotlinx.datetime.Clock
 import org.bson.types.ObjectId

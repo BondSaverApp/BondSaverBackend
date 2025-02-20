@@ -1,6 +1,6 @@
-package com.uiop07558.socnet.auth
+package com.flowlinkapp.flowlinkbackend.auth
 
-import com.uiop07558.socnet.auth.config.AuthProperties
+import com.flowlinkapp.flowlinkbackend.auth.config.AuthProperties
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity

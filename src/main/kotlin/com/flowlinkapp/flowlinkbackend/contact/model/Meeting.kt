@@ -1,4 +1,4 @@
-package com.uiop07558.socnet.contact.model
+package com.flowlinkapp.flowlinkbackend.contact.model
 
 import kotlinx.datetime.Instant
 import org.bson.types.ObjectId

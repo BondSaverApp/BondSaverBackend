@@ -1,4 +1,4 @@
-package com.uiop07558.socnet.auth.config
+package com.flowlinkapp.flowlinkbackend.auth.config
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties

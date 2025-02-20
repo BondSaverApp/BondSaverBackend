@@ -1,7 +1,7 @@
-package com.uiop07558.socnet.filters
+package com.flowlinkapp.flowlinkbackend.filters
 
-import com.uiop07558.socnet.auth.JwtTokenProvider
-import com.uiop07558.socnet.auth.model.UserRole
+import com.flowlinkapp.flowlinkbackend.auth.JwtTokenProvider
+import com.flowlinkapp.flowlinkbackend.auth.model.UserRole
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

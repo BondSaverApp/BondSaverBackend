@@ -1,11 +1,11 @@
-package com.uiop07558.socnet
+package com.flowlinkapp.flowlinkbackend
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class SocnetApplication
+class FlowlinkBackendApplication
 
 fun main(args: Array<String>) {
-	runApplication<SocnetApplication>(*args)
+	runApplication<FlowlinkBackendApplication>(*args)
 }

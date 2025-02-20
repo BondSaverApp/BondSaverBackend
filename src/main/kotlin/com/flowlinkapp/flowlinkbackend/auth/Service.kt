@@ -1,12 +1,11 @@
-package com.uiop07558.socnet.auth
+package com.flowlinkapp.flowlinkbackend.auth
 
-import com.uiop07558.socnet.auth.config.AuthProperties
-import com.uiop07558.socnet.auth.model.Session
-import com.uiop07558.socnet.auth.model.User
-import com.uiop07558.socnet.auth.model.UserRole
-import com.uiop07558.socnet.auth.repository.UserRepository
-import org.bson.types.ObjectId
-import org.springframework.beans.factory.annotation.Value
+import com.flowlinkapp.flowlinkbackend.auth.config.AuthProperties
+import com.flowlinkapp.flowlinkbackend.auth.model.Session
+import com.flowlinkapp.flowlinkbackend.auth.model.User
+import com.flowlinkapp.flowlinkbackend.auth.model.UserRole
+import com.flowlinkapp.flowlinkbackend.auth.repository.UserRepository
+import org.bson.types.ObjectId\
 import org.springframework.stereotype.Service
 import org.springframework.security.crypto.password.PasswordEncoder
 import kotlin.time.Duration
