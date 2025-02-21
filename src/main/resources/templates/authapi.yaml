@@ -3,6 +3,22 @@ info:
   title: Auth API
   version: 1.0.0
 paths:
+  /api/auth/check-account:
+    post:
+      summary: Check account existence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckAccountRequest'
+      responses:
+        '200':
+          description: Returned account existence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckAccountRequest'
   /api/auth/signup:
     post:
       summary: User Signup
@@ -79,6 +95,16 @@ paths:
                 type: string
 components:
   schemas:
+    CheckAccountRequest:
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+    CheckAccountResponse:
+      type: object
+      properties:
+        exists:
+          type: boolean
     SignupRequest:
       type: object
       properties:
