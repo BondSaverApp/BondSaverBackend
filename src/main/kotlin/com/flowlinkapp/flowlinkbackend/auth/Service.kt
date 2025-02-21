@@ -5,7 +5,7 @@ import com.flowlinkapp.flowlinkbackend.auth.model.Session
 import com.flowlinkapp.flowlinkbackend.auth.model.User
 import com.flowlinkapp.flowlinkbackend.auth.model.UserRole
 import com.flowlinkapp.flowlinkbackend.auth.repository.UserRepository
-import org.bson.types.ObjectId\
+import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import org.springframework.security.crypto.password.PasswordEncoder
 import kotlin.time.Duration
@@ -24,6 +24,14 @@ data class SignupRequest(
   val username: String,
 )
 
+data class CheckAccountRequest(
+  val phoneNumber: String,
+)
+
+data class CheckAccountResponse(
+  val exists: Boolean,
+)
+
 data class AuthResponse(
   val accessToken: String,
   val accessTokenDuration: Duration,
@@ -40,6 +48,10 @@ class AuthService(
   private val passwordEncoder: PasswordEncoder,
   private val jwtTokenProvider: JwtTokenProvider,
 ) {
+  fun checkAccount(request: CheckAccountRequest): CheckAccountResponse {
+    return CheckAccountResponse(userRepository.existsByPhone(request.phoneNumber))
+  }
+
   fun signup(signupRequest: SignupRequest): AuthResponse {
     if (userRepository.existsByPhone(signupRequest.phoneNumber)) {
       throw RuntimeException("Phone is already in use")

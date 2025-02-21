@@ -26,6 +26,11 @@ class AuthController(
 
   private val authService: AuthService
 ) {
+  @PostMapping("/check-account")
+  fun checkAccount(@RequestBody request: CheckAccountRequest): ResponseEntity<CheckAccountResponse> {
+    val checkResponse = authService.checkAccount(request)
+    return ResponseEntity.ok(checkResponse)
+  }
 
   @PostMapping("/signup")
   fun signup(@RequestBody signupRequest: SignupRequest, response: HttpServletResponse): ResponseEntity<SafeAuthResponse> {
