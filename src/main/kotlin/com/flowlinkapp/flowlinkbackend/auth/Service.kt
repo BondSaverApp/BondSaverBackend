@@ -89,7 +89,10 @@ class AuthService(
     var user = userRepository.findByPhone(loginRequest.phoneNumber)
       ?: throw RuntimeException("User not found")
 
-    if (user.passwordHash != passwordEncoder.encode(loginRequest.password)) throw RuntimeException("Invalid password")
+
+    if (!passwordEncoder.matches(loginRequest.password, user.passwordHash)) {
+      throw RuntimeException("Invalid password")
+    }
 
     val session = Session(authProperties.refreshTokenExpiration)
 

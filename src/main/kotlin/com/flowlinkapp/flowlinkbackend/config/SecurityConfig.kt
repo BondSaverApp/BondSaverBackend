@@ -20,11 +20,12 @@ class SecurityConfig(
     http
       .csrf { it.disable() }
       .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+      .securityMatcher("/api/{auth:(?!auth)(?:[a-z0-9]+)}/**")
+      .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java)
       .authorizeHttpRequests {
-        it.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/refresh").permitAll()
+        it.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/refresh", "/api/auth/check-account").permitAll()
         it.anyRequest().authenticated()
       }
-      .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java)
     return http.build()
   }
 }

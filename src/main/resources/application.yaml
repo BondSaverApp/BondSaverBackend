@@ -1,6 +1,14 @@
 spring:
   application:
     name: flowlinkbackend
+  data:
+    mongodb:
+      username: root
+      password: example
+      database: flowlink
+      host: localhost
+      port: 27017
+      authentication-database: admin
 service:
   auth:
     accessTokenExpiration: 86400
