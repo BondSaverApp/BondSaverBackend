@@ -25,7 +25,7 @@ enum class UserRole(val role: String) {
 class User(
   @Id
   val id: ObjectId,
-  val phoneNumber: String,
+  val phone: String,
   val email: String?,
   val username: String,
   val roles: MutableList<UserRole>,

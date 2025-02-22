@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toKotlinInstant
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -31,9 +32,6 @@ data class RefreshClaims(
 class JwtTokenProvider(
   private val authProperties: AuthProperties,
 ) {
-  @Value("\${jwt.secret}")
-  private lateinit var jwtSecret: String
-
   fun generateAccessToken(user: User, sessionId: String): String {
     return generateAccessToken(user, sessionId, authProperties.accessTokenExpiration)
   }
@@ -46,7 +44,7 @@ class JwtTokenProvider(
     val now = Date()
     val expiration = Date(now.time + (expirationSec.toLong() * 1000))
 
-    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret))
+    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(authProperties.secret))
 
     return Jwts.builder()
       .subject(user.id.toString())
@@ -62,7 +60,7 @@ class JwtTokenProvider(
     val now = Date()
     val expiration = Date(now.time + (expirationSec.toLong() * 1000))
 
-    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret))
+    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(authProperties.secret))
     return Jwts.builder()
       .subject(user.id.toString())
       .claim("sid", sessionId)
@@ -73,7 +71,7 @@ class JwtTokenProvider(
   }
 
   fun validateAndParseAccessToken(token: String): AccessClaims? {
-    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret))
+    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(authProperties.secret))
     try {
       val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
       if (claims.expiration.before(Date())) return null
@@ -91,7 +89,7 @@ class JwtTokenProvider(
   }
 
   fun validateAndParseRefreshToken(token: String): RefreshClaims? {
-    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret))
+    val key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(authProperties.secret))
     try {
       val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
       if (claims.expiration.before(Date())) return null

@@ -59,7 +59,7 @@ class AuthService(
 
     val user = User(
       id = ObjectId(),
-      phoneNumber = signupRequest.phoneNumber,
+      phone = signupRequest.phoneNumber,
       email = signupRequest.email,
       username = signupRequest.username,
       roles = mutableListOf(UserRole.User),
