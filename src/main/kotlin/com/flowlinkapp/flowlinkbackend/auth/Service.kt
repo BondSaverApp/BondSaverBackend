@@ -34,9 +34,9 @@ data class CheckAccountResponse(
 
 data class AuthResponse(
   val accessToken: String,
-  val accessTokenDuration: Duration,
+  val accessTokenDuration: Long,
   val refreshToken: String,
-  val refreshTokenDuration: Duration,
+  val refreshTokenDuration: Long,
   val tokenType: String
 )
 
@@ -78,9 +78,9 @@ class AuthService(
 
     return AuthResponse(
       accessToken = accessToken,
-      accessTokenDuration = authProperties.accessTokenExpiration.toDuration(DurationUnit.SECONDS),
+      accessTokenDuration = authProperties.accessTokenExpiration,
       refreshToken = refreshToken,
-      refreshTokenDuration = authProperties.refreshTokenExpiration.toDuration(DurationUnit.SECONDS),
+      refreshTokenDuration = authProperties.refreshTokenExpiration,
       tokenType = "Bearer"
     )
   }
@@ -105,9 +105,9 @@ class AuthService(
 
     return AuthResponse(
       accessToken = accessToken,
-      accessTokenDuration = authProperties.accessTokenExpiration.toDuration(DurationUnit.SECONDS),
+      accessTokenDuration = authProperties.accessTokenExpiration,
       refreshToken = refreshToken,
-      refreshTokenDuration = authProperties.refreshTokenExpiration.toDuration(DurationUnit.SECONDS),
+      refreshTokenDuration = authProperties.refreshTokenExpiration,
       tokenType = "Bearer"
     )
   }
@@ -134,9 +134,9 @@ class AuthService(
 
     return AuthResponse(
       accessToken = newAccessToken,
-      accessTokenDuration = authProperties.accessTokenExpiration.toDuration(DurationUnit.SECONDS),
+      accessTokenDuration = authProperties.accessTokenExpiration,
       refreshToken = newRefreshToken,
-      refreshTokenDuration = authProperties.refreshTokenExpiration.toDuration(DurationUnit.SECONDS),
+      refreshTokenDuration = authProperties.refreshTokenExpiration,
       tokenType = "Bearer"
     )
   }
