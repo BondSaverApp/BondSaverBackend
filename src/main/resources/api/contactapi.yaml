@@ -1,0 +1,215 @@
+openapi: 3.0.0
+info:
+  title: Auth API
+  version: 1.0.0
+paths:
+  /api/contact/synchronize:
+    post:
+      summary: Synchronize contacts and meetings between clients and server
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SynchronizeInput'
+      responses:
+        '200':
+          description: Returns what was updated on server and what should be updated on client
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynchronizeOutput'
+components:
+  schemas:
+    SynchronizeInput:
+      type: object
+      properties:
+        contactUpdatesFromClient:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        contactUpdatesFromServer:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncData'
+        meetingUpdatesFromClient:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meeting'
+        meetingUpdatesFromServer:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncData'
+    SynchronizeOutput:
+      type: object
+      properties:
+        contactsToUpdate:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        contactsUpdated:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncData'
+        meetingsToUpdate:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meeting'
+        meetingsUpdated:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncData'
+    SyncData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        updatedAtClient:
+          type: integer
+          format: int64
+        updatedAtServer:
+          type: integer
+          format: int64
+
+    Telephone:
+      type: object
+      properties:
+        type:
+          type: string
+        number:
+          type: string
+    Date:
+      type: object
+      properties:
+        type:
+          type: string
+        date:
+          type: integer
+          format: int64
+    SocialType:
+      type: string
+      enum:
+        - Telegram
+        - VK
+    Social:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/SocialType'
+        link:
+          type: string
+    Occupation:
+      type: object
+      properties:
+        profession:
+          type: string
+        company:
+          type: string
+        jobTitle:
+          type: string
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        updatedAtClient:
+          type: integer
+          format: int64
+        updatedAtServer:
+          type: integer
+          format: int64
+        deletedAt:
+          type: integer
+          format: int64
+        profilePic:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+        appearance:
+          type: string
+        meetContext:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        house:
+          type: string
+        flat:
+          type: string
+        notes:
+          type: string
+        site:
+          type: string
+        ownerId:
+          type: string
+          format: ObjectId
+        meetPlaces:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        emails:
+          type: array
+          items:
+            type: string
+        telephones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Telephone'
+        dates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Date'
+        social:
+          type: array
+          items:
+            $ref: '#/components/schemas/Social'
+        occupations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Occupation'
+
+    Topic:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    Meeting:
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        updatedAtClient:
+          type: integer
+          format: int64
+        updatedAtServer:
+          type: integer
+          format: int64
+        deletedAt:
+          type: integer
+          format: int64
+        date:
+          type: integer
+          format: int64
+        description:
+          type: string
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+        contactId:
+          type: string
+          format: ObjectId

@@ -5,12 +5,10 @@ import com.flowlinkapp.flowlinkbackend.auth.model.Session
 import com.flowlinkapp.flowlinkbackend.auth.model.User
 import com.flowlinkapp.flowlinkbackend.auth.model.UserRole
 import com.flowlinkapp.flowlinkbackend.auth.repository.UserRepository
+import com.flowlinkapp.flowlinkbackend.exceptions.UnauthenticatedServerException
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import org.springframework.security.crypto.password.PasswordEncoder
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 data class LoginRequest(
   val phoneNumber: String,
@@ -54,7 +52,7 @@ class AuthService(
 
   fun signup(signupRequest: SignupRequest): AuthResponse {
     if (userRepository.existsByPhone(signupRequest.phoneNumber)) {
-      throw RuntimeException("Phone is already in use")
+      throw UnauthenticatedServerException("Phone is already in use")
     }
 
     val user = User(
@@ -87,11 +85,11 @@ class AuthService(
 
   fun login(loginRequest: LoginRequest): AuthResponse {
     var user = userRepository.findByPhone(loginRequest.phoneNumber)
-      ?: throw RuntimeException("User not found")
+      ?: throw UnauthenticatedServerException("User not found")
 
 
     if (!passwordEncoder.matches(loginRequest.password, user.passwordHash)) {
-      throw RuntimeException("Invalid password")
+      throw UnauthenticatedServerException("Invalid password")
     }
 
     val session = Session(authProperties.refreshTokenExpiration)
@@ -144,11 +142,11 @@ class AuthService(
   fun logout(refreshToken: String) {
     val refreshClaims = jwtTokenProvider.validateAndParseRefreshToken(refreshToken)
     if (refreshClaims == null) {
-      throw RuntimeException("Invalid refresh token")
+      throw UnauthenticatedServerException("Invalid refresh token")
     }
 
     var user = userRepository.findById(ObjectId(refreshClaims.subject)).orElse(null)
-      ?: throw RuntimeException("User not found")
+      ?: throw UnauthenticatedServerException("User not found")
 
     user.checkAndRemoveSession(ObjectId(refreshClaims.sessionId))
 

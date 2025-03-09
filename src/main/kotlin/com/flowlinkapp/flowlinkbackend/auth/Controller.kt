@@ -57,7 +57,8 @@ class AuthController(
   }
 
   @PostMapping("/logout")
-  fun logout(response: HttpServletResponse): ResponseEntity<Void> {
+  fun logout(@CookieValue("refreshToken") refreshToken: String, response: HttpServletResponse): ResponseEntity<Void> {
+    authService.logout(refreshToken)
     setRefreshTokenCookie(response, "", 0)
     return ResponseEntity.noContent().build()
   }

@@ -7,16 +7,23 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 class Topic(
-  private val name: String,
-  private val description: String,
+  var name: String,
+  var description: String,
 )
 
 @Document(collection = "meetings")
 class Meeting(
   @Id
-  private val id: ObjectId,
-  private val date: Instant,
-  private val description: String,
-  private val topics: List<Topic>,
-  private val contactId: ObjectId,
-)
+  var id: ObjectId,
+  var updatedAtClient: Long,
+  var updatedAtServer: Long,
+  var deletedAt: Long,
+  var date: Long,
+  var description: String,
+  var topics: List<Topic>,
+  var contactId: ObjectId,
+) {
+  fun updateServerTime() {
+    this.updatedAtServer = System.currentTimeMillis()
+  }
+}
