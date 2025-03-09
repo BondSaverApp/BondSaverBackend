@@ -22,6 +22,7 @@ class Meeting(
   var description: String,
   var topics: List<Topic>,
   var contactId: ObjectId,
+  var ownerId: ObjectId,
 ) {
   fun updateServerTime() {
     this.updatedAtServer = System.currentTimeMillis()

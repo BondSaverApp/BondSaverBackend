@@ -4,6 +4,7 @@ import com.flowlinkapp.flowlinkbackend.contact.model.Contact
 import com.flowlinkapp.flowlinkbackend.contact.model.Meeting
 import com.flowlinkapp.flowlinkbackend.contact.repository.ContactRepository
 import com.flowlinkapp.flowlinkbackend.contact.repository.MeetingRepository
+import com.flowlinkapp.flowlinkbackend.exceptions.UnauthorizedServerException
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -34,7 +35,7 @@ class ContactService(
   val meetingRepository: MeetingRepository,
 ) {
   private fun synchronizeContacts(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
-    val contactsList = contactRepository.findAll()
+    val contactsList = contactRepository.findByOwnerId(userId)
     val contacts = mutableMapOf<ObjectId, Contact>()
     val contactsNotMentioned = mutableSetOf<ObjectId>()
     for (contact in contactsList) {
@@ -52,6 +53,9 @@ class ContactService(
     }
 
     for (clientContact in input.contactUpdatesFromClient) {
+      if (clientContact.ownerId != userId) {
+        throw UnauthorizedServerException("Client sent contact not owned by client's user")
+      }
       val serverContact = contacts[clientContact.id]
       contactsNotMentioned.remove(clientContact.id)
       if (serverContact == null || serverContact.updatedAtClient < clientContact.updatedAtClient) {
@@ -74,7 +78,7 @@ class ContactService(
   }
 
   private fun synchronizeMeetings(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
-    val meetingsList = meetingRepository.findAll()
+    val meetingsList = meetingRepository.findByOwnerId(userId)
     val meetings = mutableMapOf<ObjectId, Meeting>()
     val meetingsNotMentioned = mutableSetOf<ObjectId>()
     for (contact in meetingsList) {
@@ -92,6 +96,9 @@ class ContactService(
     }
 
     for (clientMeeting in input.meetingUpdatesFromClient) {
+      if (clientMeeting.ownerId != userId) {
+        throw UnauthorizedServerException("Client sent meeting not owned by client's user")
+      }
       val serverMeeting = meetings[clientMeeting.id]
       meetingsNotMentioned.remove(clientMeeting.id)
       if (serverMeeting == null || serverMeeting.updatedAtClient < clientMeeting.updatedAtClient) {

@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Auth API
+  title: Contact API
   version: 1.0.0
 paths:
   /api/contact/synchronize:
@@ -211,5 +211,8 @@ components:
           items:
             $ref: '#/components/schemas/Topic'
         contactId:
+          type: string
+          format: ObjectId
+        ownerId:
           type: string
           format: ObjectId
