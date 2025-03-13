@@ -14,9 +14,10 @@ import kotlin.time.Duration
 data class SafeAuthResponse(
   val accessToken: String,
   val accessTokenDuration: Long,
-  val tokenType: String
+  val tokenType: String,
+  val userId: String,
 ) {
-  constructor(p: AuthResponse): this(p.accessToken, p.accessTokenDuration, p.tokenType)
+  constructor(p: AuthResponse): this(p.accessToken, p.accessTokenDuration, p.tokenType, p.userId)
 }
 
 @RestController

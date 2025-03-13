@@ -35,7 +35,8 @@ data class AuthResponse(
   val accessTokenDuration: Long,
   val refreshToken: String,
   val refreshTokenDuration: Long,
-  val tokenType: String
+  val tokenType: String,
+  val userId: String,
 )
 
 @Service
@@ -79,7 +80,8 @@ class AuthService(
       accessTokenDuration = authProperties.accessTokenExpiration,
       refreshToken = refreshToken,
       refreshTokenDuration = authProperties.refreshTokenExpiration,
-      tokenType = "Bearer"
+      tokenType = "Bearer",
+      userId = user.id.toString(),
     )
   }
 
@@ -106,7 +108,8 @@ class AuthService(
       accessTokenDuration = authProperties.accessTokenExpiration,
       refreshToken = refreshToken,
       refreshTokenDuration = authProperties.refreshTokenExpiration,
-      tokenType = "Bearer"
+      tokenType = "Bearer",
+      userId = user.id.toString(),
     )
   }
 
@@ -135,7 +138,8 @@ class AuthService(
       accessTokenDuration = authProperties.accessTokenExpiration,
       refreshToken = newRefreshToken,
       refreshTokenDuration = authProperties.refreshTokenExpiration,
-      tokenType = "Bearer"
+      tokenType = "Bearer",
+      userId = user.id.toString(),
     )
   }
 
