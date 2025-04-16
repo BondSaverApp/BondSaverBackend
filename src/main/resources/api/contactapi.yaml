@@ -186,6 +186,11 @@ components:
           type: string
         description:
           type: string
+        answer:
+          type: string
+        contactId:
+          type: string
+          format: ObjectId
     Meeting:
       type: object
       properties:
@@ -211,8 +216,10 @@ components:
           items:
             $ref: '#/components/schemas/Topic'
         contactId:
-          type: string
-          format: ObjectId
+          type: array
+          items:
+            type: string
+            format: ObjectId
         ownerId:
           type: string
           format: ObjectId
