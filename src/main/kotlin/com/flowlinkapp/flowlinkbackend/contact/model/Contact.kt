@@ -1,6 +1,5 @@
 package com.flowlinkapp.flowlinkbackend.contact.model
 
-import kotlinx.datetime.Instant
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
@@ -23,47 +22,52 @@ enum class SocialType(var type: String) {
 }
 
 @Document
-class Social(
+class SocialNetwork(
   var type: SocialType,
   var link: String,
 )
 
 @Document
-class Occupation(
+class Profession(
   var profession: String,
   var company: String,
   var jobTitle: String,
+)
+
+@Document
+class PlaceOfMeeting(
+  var name: String,
 )
 
 @Document(collection = "contacts")
 class Contact(
   @Id
   var id: ObjectId,
-  var updatedAtClient: Long,
-  var updatedAtServer: Long,
-  var deletedAt: Long,
-  var profilePic: String,
-  var firstName: String,
-  var lastName: String,
-  var middleName: String,
-  var appearance: String,
-  var meetContext: String,
-  var city: String,
-  var street: String,
-  var house: String,
-  var flat: String,
-  var notes: String,
-  var site: String,
+  var clientEditTimestamp: Long,
+  var serverEditTimestamp: Long,
+  var deletionTimestamp: Long,
+  var name: String,
+  var surname: String?,
+  var patronymic: String?,
+  var photoPath: String,
+  var placeOfMeeting: PlaceOfMeeting?,
+  var tags: List<String>?,
+  var telephones: List<Telephone>?,
+  var dates: List<Date>?,
+  var socialNetworkNetworks: List<SocialNetwork>?,
+  var professtions: List<Profession>?,
+  var emails: List<String>?,
+  var appearance: String?,
+  var contextOfMeeting: String?,
+  var city: String?,
+  var street: String?,
+  var house: String?,
+  var flat: String?,
+  var notes: String?,
+  var site: String?,
   var ownerId: ObjectId,
-  var meetPlaces: List<String>,
-  var tags: List<String>,
-  var emails: List<String>,
-  var telephones: List<Telephone>,
-  var dates: List<Date>,
-  var social: List<Social>,
-  var occupations: List<Occupation>,
 ) {
   fun updateServerTime() {
-    updatedAtServer = System.currentTimeMillis()
+    serverEditTimestamp = System.currentTimeMillis()
   }
 }

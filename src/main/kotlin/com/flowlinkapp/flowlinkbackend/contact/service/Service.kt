@@ -58,10 +58,10 @@ class ContactService(
       }
       val serverContact = contacts[clientContact.id]
       contactsNotMentioned.remove(clientContact.id)
-      if (serverContact == null || serverContact.updatedAtClient < clientContact.updatedAtClient) {
+      if (serverContact == null || serverContact.clientEditTimestamp < clientContact.clientEditTimestamp) {
         clientContact.updateServerTime()
         contactRepository.save(clientContact)
-        contactsUpdated.add(SyncData(clientContact.id, clientContact.updatedAtClient, clientContact.updatedAtServer))
+        contactsUpdated.add(SyncData(clientContact.id, clientContact.clientEditTimestamp, clientContact.serverEditTimestamp))
       }
       else {
         contactsToUpdate.add(serverContact)

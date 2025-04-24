@@ -123,7 +123,7 @@ components:
         deletedAt:
           type: integer
           format: int64
-        profilePic:
+        photoPath:
           type: string
         firstName:
           type: string
@@ -150,10 +150,6 @@ components:
         ownerId:
           type: string
           format: ObjectId
-        meetPlaces:
-          type: array
-          items:
-            type: string
         tags:
           type: array
           items:
