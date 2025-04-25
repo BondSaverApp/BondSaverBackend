@@ -54,8 +54,8 @@ class Contact(
   var tags: List<String>?,
   var telephones: List<Telephone>?,
   var dates: List<Date>?,
-  var socialNetworkNetworks: List<SocialNetwork>?,
-  var professtions: List<Profession>?,
+  var socialNetworks: List<SocialNetwork>?,
+  var professions: List<Profession>?,
   var emails: List<String>?,
   var appearance: String?,
   var contextOfMeeting: String?,
@@ -71,3 +71,88 @@ class Contact(
     serverEditTimestamp = System.currentTimeMillis()
   }
 }
+
+fun Contact.toDto() = ContactDto(
+  id = this.id.toHexString(),
+  clientEditTimestamp = this.clientEditTimestamp,
+  serverEditTimestamp = this.serverEditTimestamp,
+  deletionTimestamp = this.deletionTimestamp,
+  name  = this.name,
+  surname = this.surname,
+  patronymic = this.patronymic,
+  photoPath = this.photoPath,
+  placeOfMeeting = this.placeOfMeeting,
+  tags = this.tags,
+  telephones = this.telephones,
+  dates = this.dates,
+  socialNetworks = this.socialNetworks,
+  professions = this.professions,
+  emails = this.emails,
+  appearance = this.appearance,
+  contextOfMeeting = this.contextOfMeeting,
+  city = this.city,
+  street = this.street,
+  house = this.house,
+  flat = this.flat,
+  notes = this.notes,
+  site = this.site,
+  ownerId = this.ownerId.toHexString()
+)
+
+class ContactDto(
+  var id: String,
+  var clientEditTimestamp: Long,
+  var serverEditTimestamp: Long,
+  var deletionTimestamp: Long,
+  var name: String,
+  var surname: String?,
+  var patronymic: String?,
+  var photoPath: String,
+  var placeOfMeeting: PlaceOfMeeting?,
+  var tags: List<String>?,
+  var telephones: List<Telephone>?,
+  var dates: List<Date>?,
+  var socialNetworks: List<SocialNetwork>?,
+  var professions: List<Profession>?,
+  var emails: List<String>?,
+  var appearance: String?,
+  var contextOfMeeting: String?,
+  var city: String?,
+  var street: String?,
+  var house: String?,
+  var flat: String?,
+  var notes: String?,
+  var site: String?,
+  var ownerId: String,
+){
+  fun updateServerTime() {
+    serverEditTimestamp = System.currentTimeMillis()
+  }
+}
+fun ContactDto.toContact() = Contact(
+  id = ObjectId(this.id),
+  clientEditTimestamp = this.clientEditTimestamp,
+  serverEditTimestamp = this.serverEditTimestamp,
+  deletionTimestamp = this.deletionTimestamp,
+  name = this.name,
+  surname = this.name,
+  patronymic = this.patronymic,
+  photoPath = this.photoPath,
+  placeOfMeeting = this.placeOfMeeting,
+  tags = this.tags,
+  telephones = this.telephones,
+  dates = this.dates,
+  socialNetworks = this.socialNetworks,
+  professions = this.professions,
+  emails = this.emails,
+  appearance = this.appearance,
+  contextOfMeeting = this.contextOfMeeting,
+  city = this.city,
+  street = this.street,
+  house = this.house,
+  flat = this.flat,
+  notes = this.notes,
+  site = this.site,
+  ownerId = ObjectId(this.ownerId)
+
+)
