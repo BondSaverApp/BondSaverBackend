@@ -66,6 +66,7 @@ class ContactService(
       contactsNotMentioned.remove(clientContact.id)
       if (serverContact == null || serverContact.clientEditTimestamp < clientContact.clientEditTimestamp) {
         clientContact.updateServerTime()
+        client.updateServerTime()
         contactRepository.save(client)
         contactsUpdated.add(SyncData(clientContact.id, clientContact.clientEditTimestamp, clientContact.serverEditTimestamp))
       }

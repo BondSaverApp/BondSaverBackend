@@ -36,7 +36,7 @@ class Profession(
 
 @Document
 class PlaceOfMeeting(
-  var name: String,
+  var name: String?,
 )
 
 @Document(collection = "contacts")
@@ -135,7 +135,7 @@ fun ContactDto.toContact() = Contact(
   serverEditTimestamp = this.serverEditTimestamp,
   deletionTimestamp = this.deletionTimestamp,
   name = this.name,
-  surname = this.name,
+  surname = this.surname,
   patronymic = this.patronymic,
   photoPath = this.photoPath,
   placeOfMeeting = this.placeOfMeeting,
