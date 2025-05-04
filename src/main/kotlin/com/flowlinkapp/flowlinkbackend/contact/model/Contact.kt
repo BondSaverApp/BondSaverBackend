@@ -6,14 +6,14 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 class Telephone(
-  var type: String,
+  var type: String?,
   var number: String,
 )
 
 @Document
 class Date(
-  var type: String,
-  var date: Long,
+  var type: String?,
+  var date: String,
 )
 
 enum class SocialType(var type: String) {
@@ -23,20 +23,25 @@ enum class SocialType(var type: String) {
 
 @Document
 class SocialNetwork(
-  var type: SocialType,
+  var type: SocialType?,
   var link: String,
 )
 
 @Document
 class Profession(
-  var profession: String,
-  var company: String,
-  var jobTitle: String,
+  var profession: String?,
+  var company: String?,
+  var jobTitle: String?,
 )
+
 
 @Document
 class PlaceOfMeeting(
   var name: String?,
+)
+@Document
+class Email(
+  var link: String?
 )
 
 @Document(collection = "contacts")
@@ -56,7 +61,7 @@ class Contact(
   var dates: List<Date>?,
   var socialNetworks: List<SocialNetwork>?,
   var professions: List<Profession>?,
-  var emails: List<String>?,
+  var emails: List<Email>?,
   var appearance: String?,
   var contextOfMeeting: String?,
   var city: String?,
@@ -114,7 +119,7 @@ class ContactDto(
   var dates: List<Date>?,
   var socialNetworks: List<SocialNetwork>?,
   var professions: List<Profession>?,
-  var emails: List<String>?,
+  var emails: List<Email>?,
   var appearance: String?,
   var contextOfMeeting: String?,
   var city: String?,
