@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 data class SyncData(
-  val id: ObjectId,
+  val id: String,
   val updatedAtClient: Long,
   val updatedAtServer: Long,
 )
@@ -50,9 +50,9 @@ class ContactService(
     val contactsToUpdate = mutableListOf<Contact>()
     val contactsUpdated = mutableListOf<SyncData>()
     for (entry in input.contactUpdatesFromServer) {
-      val contact = contacts[entry.id]
+      val contact = contacts[ObjectId(entry.id)]
       if (contact == null) continue
-      contactsNotMentioned.remove(entry.id)
+      contactsNotMentioned.remove(ObjectId(entry.id))
       contactsToUpdate.add(contact)
     }
 
@@ -65,7 +65,7 @@ class ContactService(
       if (serverContact == null || serverContact.clientEditTimestamp < clientContact.clientEditTimestamp) {
         clientContact.updateServerTime()
         contactRepository.save(clientContact)
-        contactsUpdated.add(SyncData(clientContact.id, clientContact.clientEditTimestamp, clientContact.serverEditTimestamp))
+        contactsUpdated.add(SyncData(clientContact.id.toHexString(), clientContact.clientEditTimestamp, clientContact.serverEditTimestamp))
       }
       else {
         contactsToUpdate.add(serverContact)
@@ -93,9 +93,9 @@ class ContactService(
     val meetingsToUpdate = mutableListOf<Meeting>()
     val meetingsUpdated = mutableListOf<SyncData>()
     for (entry in input.contactUpdatesFromServer) {
-      val meeting = meetings[entry.id]
+      val meeting = meetings[ObjectId(entry.id)]
       if (meeting == null) continue
-      meetingsNotMentioned.remove(entry.id)
+      meetingsNotMentioned.remove(ObjectId(entry.id))
       meetingsToUpdate.add(meeting)
     }
 
@@ -108,7 +108,7 @@ class ContactService(
       if (serverMeeting == null || serverMeeting.updatedAtClient < clientMeeting.updatedAtClient) {
         clientMeeting.updateServerTime()
         meetingRepository.save(clientMeeting)
-        meetingsUpdated.add(SyncData(clientMeeting.id, clientMeeting.updatedAtClient, clientMeeting.updatedAtServer))
+        meetingsUpdated.add(SyncData(clientMeeting.id.toHexString(), clientMeeting.updatedAtClient, clientMeeting.updatedAtServer))
       }
       else {
         meetingsToUpdate.add(serverMeeting)
