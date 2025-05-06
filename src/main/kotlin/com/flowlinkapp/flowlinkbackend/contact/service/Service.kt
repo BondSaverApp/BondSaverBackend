@@ -1,7 +1,11 @@
 package com.flowlinkapp.flowlinkbackend.contact.service
 
 import com.flowlinkapp.flowlinkbackend.contact.model.Contact
+import com.flowlinkapp.flowlinkbackend.contact.model.ContactDto
 import com.flowlinkapp.flowlinkbackend.contact.model.Meeting
+import com.flowlinkapp.flowlinkbackend.contact.model.MeetingDto
+import com.flowlinkapp.flowlinkbackend.contact.model.toDto
+import com.flowlinkapp.flowlinkbackend.contact.model.toModel
 import com.flowlinkapp.flowlinkbackend.contact.repository.ContactRepository
 import com.flowlinkapp.flowlinkbackend.contact.repository.MeetingRepository
 import com.flowlinkapp.flowlinkbackend.exceptions.UnauthorizedServerException
@@ -16,16 +20,16 @@ data class SyncData(
 )
 
 data class SynchronizeInput(
-  val contactUpdatesFromClient: List<Contact>,
+  val contactUpdatesFromClient: List<ContactDto>,
   val contactUpdatesFromServer: List<SyncData>,
-  val meetingUpdatesFromClient: List<Meeting>,
+  val meetingUpdatesFromClient: List<MeetingDto>,
   val meetingUpdatesFromServer: List<SyncData>,
 )
 
 data class SynchronizeOutput(
-  val contactsToUpdate: List<Contact>,
+  val contactsToUpdate: List<ContactDto>,
   val contactsUpdated: List<SyncData>,
-  val meetingsToUpdate: List<Meeting>,
+  val meetingsToUpdate: List<MeetingDto>,
   val meetingsUpdated: List<SyncData>,
 )
 
@@ -52,7 +56,7 @@ class ContactService(
       contactsToUpdate.add(contact)
     }
 
-    for (clientContact in input.contactUpdatesFromClient) {
+    for (clientContact in input.contactUpdatesFromClient.map { it.toModel() }) {
       if (clientContact.ownerId != userId) {
         throw UnauthorizedServerException("Client sent contact not owned by client's user")
       }
@@ -74,7 +78,7 @@ class ContactService(
       contactsToUpdate.add(contact)
     }
 
-    return SynchronizeOutput(contactsToUpdate, contactsUpdated, emptyList(), emptyList())
+    return SynchronizeOutput(contactsToUpdate.map { it.toDto() }, contactsUpdated, emptyList(), emptyList())
   }
 
   private fun synchronizeMeetings(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
@@ -95,7 +99,7 @@ class ContactService(
       meetingsToUpdate.add(meeting)
     }
 
-    for (clientMeeting in input.meetingUpdatesFromClient) {
+    for (clientMeeting in input.meetingUpdatesFromClient.map { it.toModel() }) {
       if (clientMeeting.ownerId != userId) {
         throw UnauthorizedServerException("Client sent meeting not owned by client's user")
       }
@@ -117,7 +121,7 @@ class ContactService(
       meetingsToUpdate.add(meeting)
     }
 
-    return SynchronizeOutput(emptyList(), emptyList(), meetingsToUpdate, meetingsUpdated)
+    return SynchronizeOutput(emptyList(), emptyList(), meetingsToUpdate.map { it.toDto() }, meetingsUpdated)
   }
 
   @Transactional

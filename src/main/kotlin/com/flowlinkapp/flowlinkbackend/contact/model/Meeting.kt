@@ -29,3 +29,47 @@ class Meeting(
     this.updatedAtServer = System.currentTimeMillis()
   }
 }
+
+class MeetingDto(
+  var id: String,
+  var updatedAtClient: Long,
+  var updatedAtServer: Long,
+  var deletedAt: Long,
+  var date: Long,
+  var description: String,
+  var topics: List<Topic>,
+  var contactIds: List<String>,
+  var ownerId: String,
+) {
+  fun updateServerTime() {
+    this.updatedAtServer = System.currentTimeMillis()
+  }
+}
+
+fun Meeting.toDto(): MeetingDto {
+  return MeetingDto(
+    id = this.id.toHexString(),
+    updatedAtClient = this.updatedAtClient,
+    updatedAtServer = this.updatedAtServer,
+    deletedAt = this.deletedAt,
+    date = this.date,
+    description = this.description,
+    topics = this.topics,
+    contactIds = this.contactIds.map { objectId -> objectId.toHexString() },
+    ownerId = this.ownerId.toHexString()
+  )
+}
+
+fun MeetingDto.toModel(): Meeting {
+  return Meeting(
+    id = ObjectId(this.id),
+    updatedAtClient = this.updatedAtClient,
+    updatedAtServer = this.updatedAtServer,
+    deletedAt = this.deletedAt,
+    date = this.date,
+    description = this.description,
+    topics = this.topics,
+    contactIds = this.contactIds.map { idHexString -> ObjectId(idHexString) },
+    ownerId = ObjectId(this.ownerId)
+  )
+}
