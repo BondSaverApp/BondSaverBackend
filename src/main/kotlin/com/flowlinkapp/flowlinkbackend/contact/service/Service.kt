@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 data class SyncData(
   val id: String,
   val updatedAtClient: Long,
-  val updatedAtServer: Long,
+  val updatedAtServer: Long?,
 )
 
 data class SynchronizeInput(
@@ -62,8 +62,11 @@ class ContactService(
       }
       val serverContact = contacts[clientContact.id]
       contactsNotMentioned.remove(clientContact.id)
+      if (serverContact != null && serverContact.clientEditTimestamp == clientContact.clientEditTimestamp) {
+        continue
+      }
       if (serverContact == null || serverContact.clientEditTimestamp < clientContact.clientEditTimestamp) {
-        clientContact.updateServerTime()
+        clientContact.updateServerTime(clientContact.clientEditTimestamp)
         contactRepository.save(clientContact)
         contactsUpdated.add(SyncData(clientContact.id.toHexString(), clientContact.clientEditTimestamp, clientContact.serverEditTimestamp))
       }
@@ -105,8 +108,11 @@ class ContactService(
       }
       val serverMeeting = meetings[clientMeeting.id]
       meetingsNotMentioned.remove(clientMeeting.id)
+      if (serverMeeting != null && serverMeeting.updatedAtClient == clientMeeting.updatedAtClient) {
+        continue
+      }
       if (serverMeeting == null || serverMeeting.updatedAtClient < clientMeeting.updatedAtClient) {
-        clientMeeting.updateServerTime()
+        clientMeeting.updateServerTime(clientMeeting.updatedAtClient)
         meetingRepository.save(clientMeeting)
         meetingsUpdated.add(SyncData(clientMeeting.id.toHexString(), clientMeeting.updatedAtClient, clientMeeting.updatedAtServer))
       }

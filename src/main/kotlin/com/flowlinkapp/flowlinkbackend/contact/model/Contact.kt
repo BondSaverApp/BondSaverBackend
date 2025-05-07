@@ -67,8 +67,8 @@ class Contact(
   var site: String?,
   var ownerId: ObjectId,
 ) {
-  fun updateServerTime() {
-    serverEditTimestamp = System.currentTimeMillis()
+  fun updateServerTime(newTime: Long) {
+    serverEditTimestamp = newTime
   }
 }
 
@@ -97,11 +97,7 @@ class ContactDto(
   var notes: String?,
   var site: String?,
   var ownerId: String,
-) {
-  fun updateServerTime() {
-    serverEditTimestamp = System.currentTimeMillis()
-  }
-}
+)
 
 fun Contact.toDto(): ContactDto {
   return ContactDto(
