@@ -9,3 +9,23 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=example
     tmpfs:
       - /data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ../../..
+      dockerfile: Dockerfile
+    container_name: backend.flowlink
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:example@mongodb.flowlink:27017/flowlink?authSource=admin
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
