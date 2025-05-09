@@ -39,6 +39,11 @@ class PlaceOfMeeting(
   var name: String?,
 )
 
+@Document
+class Email(
+  var email: String? = null
+)
+
 @Document(collection = "contacts")
 class Contact(
   @Id
@@ -56,7 +61,7 @@ class Contact(
   var dates: List<Date>?,
   var socialNetworkNetworks: List<SocialNetwork>?,
   var professtions: List<Profession>?,
-  var emails: List<String>?,
+  var emails: List<Email>?,
   var appearance: String?,
   var contextOfMeeting: String?,
   var city: String?,
@@ -82,12 +87,6 @@ class ContactDto(
   var patronymic: String?,
   var photoPath: String,
   var placeOfMeeting: PlaceOfMeeting?,
-  var tags: List<String>?,
-  var telephones: List<Telephone>?,
-  var dates: List<Date>?,
-  var socialNetworkNetworks: List<SocialNetwork>?,
-  var professtions: List<Profession>?,
-  var emails: List<String>?,
   var appearance: String?,
   var contextOfMeeting: String?,
   var city: String?,
@@ -97,7 +96,25 @@ class ContactDto(
   var notes: String?,
   var site: String?,
   var ownerId: String,
+  var tags: List<String>?,
+  var telephones: List<Telephone>?,
+  var dates: List<Date>?,
+  var socialNetworks: List<SocialNetwork>?,
+  var professions: List<Profession>?,
+  var emails: List<Email>?,
 )
+
+class EmailDto(
+  var email: String? = null
+)
+
+fun Email.toDto(): EmailDto {
+  return EmailDto(this@toDto.email)
+}
+
+fun EmailDto.toModel(): Email {
+  return Email(this@toModel.email)
+}
 
 fun Contact.toDto(): ContactDto {
   return ContactDto(
@@ -113,8 +130,8 @@ fun Contact.toDto(): ContactDto {
     tags = this.tags ?: emptyList(),
     telephones = this.telephones ?: emptyList(),
     dates = this.dates ?: emptyList(),
-    socialNetworkNetworks = this.socialNetworkNetworks ?: emptyList(),
-    professtions = this.professtions ?: emptyList(),
+    socialNetworks = this.socialNetworkNetworks ?: emptyList(),
+    professions = this.professtions ?: emptyList(),
     emails = this.emails ?: emptyList(),
     appearance = this.appearance,
     contextOfMeeting = this.contextOfMeeting,
@@ -142,8 +159,8 @@ fun ContactDto.toModel(): Contact {
     tags = this.tags ?: emptyList(),
     telephones = this.telephones ?: emptyList(),
     dates = this.dates ?: emptyList(),
-    socialNetworkNetworks = this.socialNetworkNetworks ?: emptyList(),
-    professtions = this.professtions ?: emptyList(),
+    socialNetworkNetworks = this.socialNetworks ?: emptyList(),
+    professtions = this.professions ?: emptyList(),
     emails = this.emails ?: emptyList(),
     appearance = this.appearance,
     contextOfMeeting = this.contextOfMeeting,

@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 
 interface MeetingRepository: MongoRepository<Meeting, ObjectId> {
   fun findByOwnerId(ownerId: ObjectId): List<Meeting>
-  fun findByOwnerIdOrderByUpdatedOnClientDesc(ownerId: ObjectId): List<Meeting>
+  fun findByOwnerIdOrderByUpdatedAtClientDesc(ownerId: ObjectId): List<Meeting>
 }

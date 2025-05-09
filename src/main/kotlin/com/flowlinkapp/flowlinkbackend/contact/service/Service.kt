@@ -292,7 +292,7 @@ class ContactService(
     if (curMeeting.ownerId != userId) {
       throw UnauthorizedServerException("User is unauthorized to access this meeting")
     }
-    val meetings = meetingRepository.findByOwnerIdOrderByUpdatedOnClientDesc(userId)
+    val meetings = meetingRepository.findByOwnerIdOrderByUpdatedAtClientDesc(userId)
     val meetingByContact = mutableMapOf<ObjectId, MutableList<Meeting>>()
     for (meeting in meetings) {
       for (contactId in curMeeting.contactIds) {
@@ -327,7 +327,7 @@ class ContactService(
 
           generationTopics.add(PreviousTopic(
             contactId?.toString(),
-            "${contact?.firstName} ${contact?.lastName}",
+            "${contact?.name} ${contact?.surname}",
             topic.name,
             topic.description
           ))

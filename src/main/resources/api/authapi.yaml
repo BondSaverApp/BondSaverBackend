@@ -98,7 +98,7 @@ components:
     CheckAccountRequest:
       type: object
       properties:
-        phoneNumber:
+        email:
           type: string
     CheckAccountResponse:
       type: object
@@ -108,19 +108,16 @@ components:
     SignupRequest:
       type: object
       properties:
-        phoneNumber:
+        email:
           type: string
         password:
           type: string
-        email:
-          type: string
-          nullable: true
         username:
           type: string
     LoginRequest:
       type: object
       properties:
-        phoneNumber:
+        email:
           type: string
         password:
           type: string
