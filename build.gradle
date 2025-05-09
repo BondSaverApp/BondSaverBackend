@@ -1,6 +1,8 @@
 plugins {
 	id 'org.jetbrains.kotlin.jvm' version '1.9.25'
 	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+	id 'org.jetbrains.kotlin.jvm' version '2.1.20'
+	id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.20'
 	id 'org.springframework.boot' version '3.4.2'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -27,6 +29,8 @@ dependencies {
 	implementation 'at.favre.lib:bcrypt:0.10.2'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'io.jsonwebtoken:jjwt:0.12.6'
+	implementation "com.aallam.openai:openai-client:4.0.1"
+	implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
