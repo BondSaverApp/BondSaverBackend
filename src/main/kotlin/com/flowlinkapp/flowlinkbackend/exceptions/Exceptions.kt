@@ -12,6 +12,22 @@ sealed class ServerException(
   abstract fun name(): String
 }
 
+class NotFoundServerException(
+  override val message: String?,
+  override val cause: Throwable?,
+): ServerException(message, cause) {
+  constructor(): this(null, null)
+  constructor(message: String?): this(message, null)
+  constructor(cause: Throwable?): this(null, cause)
+
+  override fun statusCode(): Int {
+    return 404
+  }
+  override fun name(): String {
+    return "Not found"
+  }
+}
+
 class UnauthenticatedServerException(
   override val message: String?,
   override val cause: Throwable?,
