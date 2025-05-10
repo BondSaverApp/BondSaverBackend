@@ -19,6 +19,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SynchronizeOutput'
+  /generate-topics/{id}:
+    post:
+      summary: Generate topics for a meeting
+      operationId: generateTopics
+      tags:
+        - Meetings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Meeting ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully generated topics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meeting'
 components:
   schemas:
     SynchronizeInput:

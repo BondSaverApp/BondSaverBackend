@@ -10,6 +10,7 @@ import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIHost
 import com.flowlinkapp.flowlinkbackend.contact.model.Contact
 import com.flowlinkapp.flowlinkbackend.contact.model.Meeting
+import com.flowlinkapp.flowlinkbackend.contact.model.Topic
 import com.flowlinkapp.flowlinkbackend.contact.repository.ContactRepository
 import com.flowlinkapp.flowlinkbackend.contact.repository.MeetingRepository
 import com.flowlinkapp.flowlinkbackend.exceptions.NotFoundServerException
@@ -53,6 +54,26 @@ data class PreviousTopic(
   val contactName: String?,
   val question: String,
   val answer: String,
+)
+
+@Serializable
+data class TopicGenerationInput(
+  val previousConversationTopics: List<PreviousTopic>
+)
+
+@Serializable
+data class GeneratedTopic(
+  @EncodeDefault
+  val contactId: String?,
+  @EncodeDefault
+  val contactName: String?,
+  val name: String,
+  val description: String,
+)
+
+@Serializable
+data class TopicGenerationOutput(
+  val newConversationTopics: List<GeneratedTopic>
 )
 
 @Service
@@ -163,7 +184,7 @@ class ContactService(
     )
   }
 
-  private fun getGeneratedTopics(inputTopics: List<PreviousTopic>): String {
+  private fun getGeneratedTopics(inputTopics: TopicGenerationInput): TopicGenerationOutput {
     val inputPrompt = Json.encodeToString(inputTopics)
 
     val chatRequest = ChatCompletionRequest(
@@ -270,11 +291,13 @@ class ContactService(
     )
 
     val completion = runBlocking { client.chatCompletion(chatRequest) }
-    return completion.choices[0].message.messageContent.toString()
+    return Json.decodeFromString<TopicGenerationOutput>(
+      completion.choices[0].message.messageContent.toString()
+    )
   }
 
   @Transactional
-  fun generateTopics(meetingId: ObjectId, userId: ObjectId): String {
+  fun generateTopics(meetingId: ObjectId, userId: ObjectId): Meeting {
     val curMeeting: Meeting? = meetingRepository.findById(meetingId).orElse(null)
     if (curMeeting == null) {
       throw NotFoundServerException("Meeting not found")
@@ -302,7 +325,7 @@ class ContactService(
       contactsById[contact.id] = contact
     }
 
-    val generationTopics = mutableListOf<PreviousTopic>()
+    val previousTopics = mutableListOf<PreviousTopic>()
     for (contact in contacts) {
       val meetings = meetingByContact[contact.id] ?: continue
       for (meeting in meetings) {
@@ -315,7 +338,7 @@ class ContactService(
 
           val contact = contactsById[contactId]
 
-          generationTopics.add(PreviousTopic(
+          previousTopics.add(PreviousTopic(
             contactId?.toString(),
             "${contact?.firstName} ${contact?.lastName}",
             topic.name,
@@ -325,6 +348,20 @@ class ContactService(
       }
     }
 
-    return getGeneratedTopics(generationTopics)
+    val generationTopics = TopicGenerationInput(previousTopics)
+    val generatedTopics = getGeneratedTopics(generationTopics)
+
+    for (topic in generatedTopics.newConversationTopics) {
+      curMeeting.topics.add(Topic(
+        name = topic.name,
+        description = topic.description,
+        answer = null,
+        contactId = ObjectId(topic.contactId),
+        isGenerated = true
+      ))
+    }
+
+    meetingRepository.save(curMeeting)
+    return curMeeting
   }
 }

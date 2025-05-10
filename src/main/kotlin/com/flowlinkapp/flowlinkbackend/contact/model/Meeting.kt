@@ -8,7 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document
 class Topic(
   var name: String,
   var description: String,
-  var answer: String,
+  var isGenerated: Boolean,
+  var answer: String?,
   var contactId: ObjectId?,
 )
 
@@ -21,8 +22,8 @@ class Meeting(
   var deletedAt: Long,
   var date: Long,
   var description: String,
-  var topics: List<Topic>,
-  var contactIds: List<ObjectId>,
+  var topics: MutableList<Topic>,
+  var contactIds: MutableList<ObjectId>,
   var ownerId: ObjectId,
 ) {
   fun updateServerTime() {
