@@ -19,7 +19,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SynchronizeOutput'
-  /generate-topics/{id}:
+  /api/contact/generate-topics/{id}:
     post:
       summary: Generate topics for a meeting
       operationId: generateTopics
@@ -128,32 +128,45 @@ components:
           type: string
         jobTitle:
           type: string
+    PlaceOfMeeting:
+      type: object
+      properties:
+        name:
+          type: string
+    Email:
+      type: object
+      properties:
+        email:
+          type: string
     Contact:
       type: object
       properties:
         id:
           type: string
           format: ObjectId
-        updatedAtClient:
+        clientEditTimestamp:
           type: integer
           format: int64
-        updatedAtServer:
+        serverEditTimestamp:
           type: integer
           format: int64
-        deletedAt:
+        deletionTimestamp:
           type: integer
           format: int64
-        profilePic:
+        name:
           type: string
-        firstName:
+        surname:
           type: string
-        lastName:
+        patronymic:
           type: string
-        middleName:
+        photoPath:
           type: string
+        placeOfMeeting:
+          type:
+            $ref: "#/components/schemas/PlaceOfMeeting"
         appearance:
           type: string
-        meetContext:
+        contextOfMeeting:
           type: string
         city:
           type: string
@@ -170,15 +183,11 @@ components:
         ownerId:
           type: string
           format: ObjectId
-        meetPlaces:
-          type: array
-          items:
-            type: string
-        tags:
-          type: array
-          items:
-            type: string
         emails:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlaceOfMeeting"
+        tags:
           type: array
           items:
             type: string
@@ -190,11 +199,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Date'
-        social:
+        socialNetworks:
           type: array
           items:
             $ref: '#/components/schemas/Social'
-        occupations:
+        professions:
           type: array
           items:
             $ref: '#/components/schemas/Occupation'
@@ -235,7 +244,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Topic'
-        contactId:
+        contactsIds:
           type: array
           items:
             type: string

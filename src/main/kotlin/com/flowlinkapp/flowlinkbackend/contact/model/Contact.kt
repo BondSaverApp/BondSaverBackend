@@ -1,6 +1,5 @@
 package com.flowlinkapp.flowlinkbackend.contact.model
 
-import kotlinx.datetime.Instant
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
@@ -23,47 +22,154 @@ enum class SocialType(var type: String) {
 }
 
 @Document
-class Social(
+class SocialNetwork(
   var type: SocialType,
   var link: String,
 )
 
 @Document
-class Occupation(
+class Profession(
   var profession: String,
   var company: String,
   var jobTitle: String,
+)
+
+@Document
+class PlaceOfMeeting(
+  var name: String?,
+)
+
+@Document
+class Email(
+  var email: String? = null
 )
 
 @Document(collection = "contacts")
 class Contact(
   @Id
   var id: ObjectId,
-  var updatedAtClient: Long,
-  var updatedAtServer: Long,
-  var deletedAt: Long,
-  var profilePic: String,
-  var firstName: String,
-  var lastName: String,
-  var middleName: String,
-  var appearance: String,
-  var meetContext: String,
-  var city: String,
-  var street: String,
-  var house: String,
-  var flat: String,
-  var notes: String,
-  var site: String,
+  var clientEditTimestamp: Long,
+  var serverEditTimestamp: Long,
+  var deletionTimestamp: Long,
+  var name: String,
+  var surname: String?,
+  var patronymic: String?,
+  var photoPath: String,
+  var placeOfMeeting: PlaceOfMeeting?,
+  var tags: List<String>?,
+  var telephones: List<Telephone>?,
+  var dates: List<Date>?,
+  var socialNetworkNetworks: List<SocialNetwork>?,
+  var professtions: List<Profession>?,
+  var emails: List<Email>?,
+  var appearance: String?,
+  var contextOfMeeting: String?,
+  var city: String?,
+  var street: String?,
+  var house: String?,
+  var flat: String?,
+  var notes: String?,
+  var site: String?,
   var ownerId: ObjectId,
-  var meetPlaces: List<String>,
-  var tags: List<String>,
-  var emails: List<String>,
-  var telephones: List<Telephone>,
-  var dates: List<Date>,
-  var social: List<Social>,
-  var occupations: List<Occupation>,
 ) {
-  fun updateServerTime() {
-    updatedAtServer = System.currentTimeMillis()
+  fun updateServerTime(newTime: Long) {
+    serverEditTimestamp = newTime
   }
+}
+
+class ContactDto(
+  var id: String,
+  var clientEditTimestamp: Long,
+  var serverEditTimestamp: Long,
+  var deletionTimestamp: Long,
+  var name: String,
+  var surname: String?,
+  var patronymic: String?,
+  var photoPath: String,
+  var placeOfMeeting: PlaceOfMeeting?,
+  var appearance: String?,
+  var contextOfMeeting: String?,
+  var city: String?,
+  var street: String?,
+  var house: String?,
+  var flat: String?,
+  var notes: String?,
+  var site: String?,
+  var ownerId: String,
+  var tags: List<String>?,
+  var telephones: List<Telephone>?,
+  var dates: List<Date>?,
+  var socialNetworks: List<SocialNetwork>?,
+  var professions: List<Profession>?,
+  var emails: List<Email>?,
+)
+
+class EmailDto(
+  var email: String? = null
+)
+
+fun Email.toDto(): EmailDto {
+  return EmailDto(this@toDto.email)
+}
+
+fun EmailDto.toModel(): Email {
+  return Email(this@toModel.email)
+}
+
+fun Contact.toDto(): ContactDto {
+  return ContactDto(
+    id = this.id.toHexString(),
+    clientEditTimestamp = this.clientEditTimestamp,
+    serverEditTimestamp = this.serverEditTimestamp,
+    deletionTimestamp = this.deletionTimestamp, // Если нет, используем 0
+    name = this.name,
+    surname = this.surname,
+    patronymic = this.patronymic,
+    photoPath = this.photoPath,
+    placeOfMeeting = this.placeOfMeeting,
+    tags = this.tags ?: emptyList(),
+    telephones = this.telephones ?: emptyList(),
+    dates = this.dates ?: emptyList(),
+    socialNetworks = this.socialNetworkNetworks ?: emptyList(),
+    professions = this.professtions ?: emptyList(),
+    emails = this.emails ?: emptyList(),
+    appearance = this.appearance,
+    contextOfMeeting = this.contextOfMeeting,
+    city = this.city,
+    street = this.street,
+    house = this.house,
+    flat = this.flat,
+    notes = this.notes,
+    site = this.site,
+    ownerId = this.ownerId.toHexString(),
+  )
+}
+
+fun ContactDto.toModel(): Contact {
+  return Contact(
+    id = ObjectId(this.id),
+    clientEditTimestamp = this.clientEditTimestamp,
+    serverEditTimestamp = this.serverEditTimestamp,
+    deletionTimestamp = this.deletionTimestamp, // Если нет, используем 0
+    name = this.name,
+    surname = this.surname,
+    patronymic = this.patronymic,
+    photoPath = this.photoPath,
+    placeOfMeeting = this.placeOfMeeting,
+    tags = this.tags ?: emptyList(),
+    telephones = this.telephones ?: emptyList(),
+    dates = this.dates ?: emptyList(),
+    socialNetworkNetworks = this.socialNetworks ?: emptyList(),
+    professtions = this.professions ?: emptyList(),
+    emails = this.emails ?: emptyList(),
+    appearance = this.appearance,
+    contextOfMeeting = this.contextOfMeeting,
+    city = this.city,
+    street = this.street,
+    house = this.house,
+    flat = this.flat,
+    notes = this.notes,
+    site = this.site,
+    ownerId = ObjectId(this.ownerId),
+  )
 }

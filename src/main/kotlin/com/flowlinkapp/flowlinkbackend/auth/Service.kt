@@ -11,19 +11,18 @@ import org.springframework.stereotype.Service
 import org.springframework.security.crypto.password.PasswordEncoder
 
 data class LoginRequest(
-  val phoneNumber: String,
+  val email: String,
   val password: String,
 )
 
 data class SignupRequest(
-  val phoneNumber: String,
+  val email: String,
   val password: String,
-  val email: String?,
   val username: String,
 )
 
 data class CheckAccountRequest(
-  val phoneNumber: String,
+  val email: String,
 )
 
 data class CheckAccountResponse(
@@ -48,17 +47,16 @@ class AuthService(
   private val jwtTokenProvider: JwtTokenProvider,
 ) {
   fun checkAccount(request: CheckAccountRequest): CheckAccountResponse {
-    return CheckAccountResponse(userRepository.existsByPhone(request.phoneNumber))
+    return CheckAccountResponse(userRepository.existsByEmail(request.email))
   }
 
   fun signup(signupRequest: SignupRequest): AuthResponse {
-    if (userRepository.existsByPhone(signupRequest.phoneNumber)) {
-      throw UnauthenticatedServerException("Phone is already in use")
+    if (userRepository.existsByEmail(signupRequest.email)) {
+      throw UnauthenticatedServerException("Email is already in use")
     }
 
     val user = User(
       id = ObjectId(),
-      phone = signupRequest.phoneNumber,
       email = signupRequest.email,
       username = signupRequest.username,
       roles = mutableListOf(UserRole.User),
@@ -86,7 +84,7 @@ class AuthService(
   }
 
   fun login(loginRequest: LoginRequest): AuthResponse {
-    var user = userRepository.findByPhone(loginRequest.phoneNumber)
+    var user = userRepository.findByEmail(loginRequest.email)
       ?: throw UnauthenticatedServerException("User not found")
 
 
