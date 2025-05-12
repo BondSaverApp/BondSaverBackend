@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 data class SyncData(
   val id: ObjectId,
   val updatedAtClient: Long,
-  val updatedAtServer: Long,
+  val updatedAtServer: Long?,
 )
 
 data class SynchronizeInput(
@@ -110,10 +110,10 @@ class ContactService(
       }
       val serverContact = contacts[clientContact.id]
       contactsNotMentioned.remove(clientContact.id)
-      if (serverContact == null || serverContact.updatedAtClient < clientContact.updatedAtClient) {
+      if (serverContact == null || serverContact.clientEditTimestamp < clientContact.clientEditTimestamp) {
         clientContact.updateServerTime()
         contactRepository.save(clientContact)
-        contactsUpdated.add(SyncData(clientContact.id, clientContact.updatedAtClient, clientContact.updatedAtServer))
+        contactsUpdated.add(SyncData(clientContact.id, clientContact.clientEditTimestamp, clientContact.serverEditTimestamp))
       }
       else {
         contactsToUpdate.add(serverContact)
@@ -153,10 +153,10 @@ class ContactService(
       }
       val serverMeeting = meetings[clientMeeting.id]
       meetingsNotMentioned.remove(clientMeeting.id)
-      if (serverMeeting == null || serverMeeting.updatedAtClient < clientMeeting.updatedAtClient) {
+      if (serverMeeting == null || serverMeeting.clientEditTimestamp < clientMeeting.clientEditTimestamp) {
         clientMeeting.updateServerTime()
         meetingRepository.save(clientMeeting)
-        meetingsUpdated.add(SyncData(clientMeeting.id, clientMeeting.updatedAtClient, clientMeeting.updatedAtServer))
+        meetingsUpdated.add(SyncData(clientMeeting.id, clientMeeting.clientEditTimestamp, clientMeeting.serverEditTimestamp))
       }
       else {
         meetingsToUpdate.add(serverMeeting)
@@ -305,7 +305,7 @@ class ContactService(
     if (curMeeting.ownerId != userId) {
       throw UnauthorizedServerException("User is unauthorized to access this meeting")
     }
-    val meetings = meetingRepository.findByOwnerIdOrderByUpdatedOnClientDesc(userId)
+    val meetings = meetingRepository.findByOwnerIdOrderByUpdatedAtClientDesc(userId)
     val meetingByContact = mutableMapOf<ObjectId, MutableList<Meeting>>()
     for (meeting in meetings) {
       for (contactId in curMeeting.contactIds) {
@@ -340,7 +340,7 @@ class ContactService(
 
           previousTopics.add(PreviousTopic(
             contactId?.toString(),
-            "${contact?.firstName} ${contact?.lastName}",
+            "${contact?.name} ${contact?.surname}",
             topic.name,
             topic.description
           ))

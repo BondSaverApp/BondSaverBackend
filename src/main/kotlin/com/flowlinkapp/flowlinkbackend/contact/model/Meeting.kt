@@ -16,7 +16,8 @@ class Topic(
 class TopicDto(
   var name: String,
   var description: String,
-  var answer: String,
+  var isGenerated: Boolean,
+  var answer: String?,
   var contactId: String?,
 )
 
@@ -24,25 +25,25 @@ class TopicDto(
 class Meeting(
   @Id
   var id: ObjectId,
-  var updatedAtClient: Long,
-  var updatedAtServer: Long?,
-  var deletedAt: Long?,
+  var clientEditTimestamp: Long,
+  var serverEditTimestamp: Long?,
+  var deletionTimestamp: Long?,
   var date: Long,
   var description: String,
   var topics: MutableList<Topic>,
   var contactIds: MutableList<ObjectId>,
   var ownerId: ObjectId,
 ) {
-  fun updateServerTime(newTime: Long) {
-    this.updatedAtServer = newTime
+  fun updateServerTime() {
+    this.serverEditTimestamp = System.currentTimeMillis()
   }
 }
 
 class MeetingDto(
   var id: String,
-  var updatedAtClient: Long,
-  var updatedAtServer: Long?,
-  var deletedAt: Long?,
+  var clientEditTimestamp: Long,
+  var serverEditTimestamp: Long?,
+  var deletionTimestamp: Long?,
   var date: Long,
   var description: String,
   var topics: List<TopicDto>,
@@ -53,9 +54,9 @@ class MeetingDto(
 fun Meeting.toDto(): MeetingDto {
   return MeetingDto(
     id = this.id.toHexString(),
-    updatedAtClient = this.updatedAtClient,
-    updatedAtServer = this.updatedAtServer,
-    deletedAt = this.deletedAt,
+    clientEditTimestamp = this.clientEditTimestamp,
+    serverEditTimestamp = this.serverEditTimestamp,
+    deletionTimestamp = this.deletionTimestamp,
     date = this.date,
     description = this.description,
     topics = this.topics.map { it.toDto() },
@@ -67,6 +68,7 @@ fun Meeting.toDto(): MeetingDto {
 fun Topic.toDto() = TopicDto(
   name = this@toDto.name,
   description = this@toDto.description,
+  isGenerated = this@toDto.isGenerated,
   answer = this@toDto.answer,
   contactId = this@toDto.contactId?.toHexString(),
 )
@@ -81,6 +83,7 @@ fun TopicDto.toModel(): Topic {
   return Topic(
     name = this@toModel.name,
     description = this@toModel.description,
+    isGenerated = this@toModel.isGenerated,
     answer = this@toModel.answer,
     contactId = contactId,
   )
@@ -89,13 +92,13 @@ fun TopicDto.toModel(): Topic {
 fun MeetingDto.toModel(): Meeting {
   return Meeting(
     id = ObjectId(this.id),
-    updatedAtClient = this.updatedAtClient,
-    updatedAtServer = this.updatedAtServer,
-    deletedAt = this.deletedAt,
+    clientEditTimestamp = this.clientEditTimestamp,
+    serverEditTimestamp = this.serverEditTimestamp,
+    deletionTimestamp = this.deletionTimestamp,
     date = this.date,
     description = this.description,
-    topics = this.topics.map { it.toModel() },
-    contactIds = this.contactsIds.map { idHexString -> ObjectId(idHexString) },
+    topics = this.topics.map { it.toModel() }.toMutableList(),
+    contactIds = this.contactsIds.map { idHexString -> ObjectId(idHexString) }.toMutableList(),
     ownerId = ObjectId(this.ownerId)
   )
 }

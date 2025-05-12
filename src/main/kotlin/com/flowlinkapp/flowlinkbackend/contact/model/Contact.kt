@@ -49,8 +49,8 @@ class Contact(
   @Id
   var id: ObjectId,
   var clientEditTimestamp: Long,
-  var serverEditTimestamp: Long,
-  var deletionTimestamp: Long,
+  var serverEditTimestamp: Long?,
+  var deletionTimestamp: Long?,
   var name: String,
   var surname: String?,
   var patronymic: String?,
@@ -60,7 +60,7 @@ class Contact(
   var telephones: List<Telephone>?,
   var dates: List<Date>?,
   var socialNetworkNetworks: List<SocialNetwork>?,
-  var professtions: List<Profession>?,
+  var professions: List<Profession>?,
   var emails: List<Email>?,
   var appearance: String?,
   var contextOfMeeting: String?,
@@ -72,16 +72,16 @@ class Contact(
   var site: String?,
   var ownerId: ObjectId,
 ) {
-  fun updateServerTime(newTime: Long) {
-    serverEditTimestamp = newTime
+  fun updateServerTime() {
+    serverEditTimestamp = System.currentTimeMillis()
   }
 }
 
 class ContactDto(
   var id: String,
   var clientEditTimestamp: Long,
-  var serverEditTimestamp: Long,
-  var deletionTimestamp: Long,
+  var serverEditTimestamp: Long?,
+  var deletionTimestamp: Long?,
   var name: String,
   var surname: String?,
   var patronymic: String?,
@@ -131,7 +131,7 @@ fun Contact.toDto(): ContactDto {
     telephones = this.telephones ?: emptyList(),
     dates = this.dates ?: emptyList(),
     socialNetworks = this.socialNetworkNetworks ?: emptyList(),
-    professions = this.professtions ?: emptyList(),
+    professions = this.professions ?: emptyList(),
     emails = this.emails ?: emptyList(),
     appearance = this.appearance,
     contextOfMeeting = this.contextOfMeeting,
@@ -160,7 +160,7 @@ fun ContactDto.toModel(): Contact {
     telephones = this.telephones ?: emptyList(),
     dates = this.dates ?: emptyList(),
     socialNetworkNetworks = this.socialNetworks ?: emptyList(),
-    professtions = this.professions ?: emptyList(),
+    professions = this.professions ?: emptyList(),
     emails = this.emails ?: emptyList(),
     appearance = this.appearance,
     contextOfMeeting = this.contextOfMeeting,
