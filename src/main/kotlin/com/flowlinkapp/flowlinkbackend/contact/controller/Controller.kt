@@ -1,6 +1,7 @@
 package com.flowlinkapp.flowlinkbackend.contact.controller
 
 import com.flowlinkapp.flowlinkbackend.contact.model.Meeting
+import com.flowlinkapp.flowlinkbackend.contact.model.MeetingDto
 import com.flowlinkapp.flowlinkbackend.contact.service.ContactService
 import com.flowlinkapp.flowlinkbackend.contact.service.SynchronizeInput
 import com.flowlinkapp.flowlinkbackend.contact.service.SynchronizeOutput
@@ -27,7 +28,7 @@ class ContactController(
   }
 
   @PostMapping("/generate-topics/{id}")
-  fun generateTopics(@PathVariable("id") meetingId: String): ResponseEntity<Meeting> {
+  fun generateTopics(@PathVariable("id") meetingId: String): ResponseEntity<MeetingDto> {
     val userId = ObjectId(SecurityContextHolder.getContext().authentication.name)
 
     val meeting = service.generateTopics(ObjectId(meetingId), userId)

@@ -25,9 +25,9 @@ class TopicDto(
 class Meeting(
   @Id
   var id: ObjectId,
-  var clientEditTimestamp: Long,
-  var serverEditTimestamp: Long?,
-  var deletionTimestamp: Long?,
+  var updatedAtClient: Long,
+  var updatedAtServer: Long?,
+  var deletedAt: Long?,
   var date: Long,
   var description: String,
   var topics: MutableList<Topic>,
@@ -35,7 +35,7 @@ class Meeting(
   var ownerId: ObjectId,
 ) {
   fun updateServerTime() {
-    this.serverEditTimestamp = System.currentTimeMillis()
+    this.updatedAtServer = System.currentTimeMillis()
   }
 }
 
@@ -54,9 +54,9 @@ class MeetingDto(
 fun Meeting.toDto(): MeetingDto {
   return MeetingDto(
     id = this.id.toHexString(),
-    clientEditTimestamp = this.clientEditTimestamp,
-    serverEditTimestamp = this.serverEditTimestamp,
-    deletionTimestamp = this.deletionTimestamp,
+    clientEditTimestamp = this.updatedAtClient,
+    serverEditTimestamp = this.updatedAtServer,
+    deletionTimestamp = this.deletedAt,
     date = this.date,
     description = this.description,
     topics = this.topics.map { it.toDto() },
@@ -92,9 +92,9 @@ fun TopicDto.toModel(): Topic {
 fun MeetingDto.toModel(): Meeting {
   return Meeting(
     id = ObjectId(this.id),
-    clientEditTimestamp = this.clientEditTimestamp,
-    serverEditTimestamp = this.serverEditTimestamp,
-    deletionTimestamp = this.deletionTimestamp,
+    updatedAtClient = this.clientEditTimestamp,
+    updatedAtServer = this.serverEditTimestamp,
+    deletedAt = this.deletionTimestamp,
     date = this.date,
     description = this.description,
     topics = this.topics.map { it.toModel() }.toMutableList(),

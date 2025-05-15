@@ -9,8 +9,12 @@ import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIHost
 import com.flowlinkapp.flowlinkbackend.contact.model.Contact
+import com.flowlinkapp.flowlinkbackend.contact.model.ContactDto
 import com.flowlinkapp.flowlinkbackend.contact.model.Meeting
+import com.flowlinkapp.flowlinkbackend.contact.model.MeetingDto
 import com.flowlinkapp.flowlinkbackend.contact.model.Topic
+import com.flowlinkapp.flowlinkbackend.contact.model.toDto
+import com.flowlinkapp.flowlinkbackend.contact.model.toModel
 import com.flowlinkapp.flowlinkbackend.contact.repository.ContactRepository
 import com.flowlinkapp.flowlinkbackend.contact.repository.MeetingRepository
 import com.flowlinkapp.flowlinkbackend.exceptions.NotFoundServerException
@@ -32,18 +36,36 @@ data class SyncData(
   val updatedAtServer: Long?,
 )
 
+data class SyncDataDto(
+  val id: String,
+  val updatedAtClient: Long,
+  val updatedAtServer: Long?,
+)
+
+fun SyncData.toDto(): SyncDataDto = SyncDataDto(
+  id = this.id.toHexString(),
+  updatedAtClient = this.updatedAtClient,
+  updatedAtServer = this.updatedAtServer,
+)
+
+fun SyncDataDto.toModel(): SyncData = SyncData(
+  id = ObjectId(this.id),
+  updatedAtClient = this.updatedAtClient,
+  updatedAtServer = this.updatedAtServer,
+)
+
 data class SynchronizeInput(
-  val contactUpdatesFromClient: List<Contact>,
-  val contactUpdatesFromServer: List<SyncData>,
-  val meetingUpdatesFromClient: List<Meeting>,
-  val meetingUpdatesFromServer: List<SyncData>,
+  val contactUpdatesFromClient: List<ContactDto>,
+  val contactUpdatesFromServer: List<SyncDataDto>,
+  val meetingUpdatesFromClient: List<MeetingDto>,
+  val meetingUpdatesFromServer: List<SyncDataDto>,
 )
 
 data class SynchronizeOutput(
-  val contactsToUpdate: List<Contact>,
-  val contactsUpdated: List<SyncData>,
-  val meetingsToUpdate: List<Meeting>,
-  val meetingsUpdated: List<SyncData>,
+  val contactsToUpdate: List<ContactDto>,
+  val contactsUpdated: List<SyncDataDto>,
+  val meetingsToUpdate: List<MeetingDto>,
+  val meetingsUpdated: List<SyncDataDto>,
 )
 
 @Serializable
@@ -97,19 +119,22 @@ class ContactService(
 
     val contactsToUpdate = mutableListOf<Contact>()
     val contactsUpdated = mutableListOf<SyncData>()
-    for (entry in input.contactUpdatesFromServer) {
+    for (entry in input.contactUpdatesFromServer.map { it.toModel() }) {
       val contact = contacts[entry.id]
       if (contact == null) continue
       contactsNotMentioned.remove(entry.id)
       contactsToUpdate.add(contact)
     }
 
-    for (clientContact in input.contactUpdatesFromClient) {
+    for (clientContact in input.contactUpdatesFromClient.map { it.toModel() }) {
       if (clientContact.ownerId != userId) {
         throw UnauthorizedServerException("Client sent contact not owned by client's user")
       }
       val serverContact = contacts[clientContact.id]
       contactsNotMentioned.remove(clientContact.id)
+      if (serverContact != null && serverContact.clientEditTimestamp == clientContact.clientEditTimestamp) {
+        continue
+      }
       if (serverContact == null || serverContact.clientEditTimestamp < clientContact.clientEditTimestamp) {
         clientContact.updateServerTime()
         contactRepository.save(clientContact)
@@ -126,7 +151,7 @@ class ContactService(
       contactsToUpdate.add(contact)
     }
 
-    return SynchronizeOutput(contactsToUpdate, contactsUpdated, emptyList(), emptyList())
+    return SynchronizeOutput(contactsToUpdate.map { it.toDto() }, contactsUpdated.map { it.toDto() }, emptyList(), emptyList())
   }
 
   private fun synchronizeMeetings(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
@@ -140,23 +165,26 @@ class ContactService(
 
     val meetingsToUpdate = mutableListOf<Meeting>()
     val meetingsUpdated = mutableListOf<SyncData>()
-    for (entry in input.contactUpdatesFromServer) {
+    for (entry in input.contactUpdatesFromServer.map { it.toModel() }) {
       val meeting = meetings[entry.id]
       if (meeting == null) continue
       meetingsNotMentioned.remove(entry.id)
       meetingsToUpdate.add(meeting)
     }
 
-    for (clientMeeting in input.meetingUpdatesFromClient) {
+    for (clientMeeting in input.meetingUpdatesFromClient.map { it.toModel() }) {
       if (clientMeeting.ownerId != userId) {
         throw UnauthorizedServerException("Client sent meeting not owned by client's user")
       }
       val serverMeeting = meetings[clientMeeting.id]
       meetingsNotMentioned.remove(clientMeeting.id)
-      if (serverMeeting == null || serverMeeting.clientEditTimestamp < clientMeeting.clientEditTimestamp) {
+      if (serverMeeting != null && serverMeeting.updatedAtClient == clientMeeting.updatedAtClient) {
+        continue
+      }
+      if (serverMeeting == null || serverMeeting.updatedAtClient < clientMeeting.updatedAtClient) {
         clientMeeting.updateServerTime()
         meetingRepository.save(clientMeeting)
-        meetingsUpdated.add(SyncData(clientMeeting.id, clientMeeting.clientEditTimestamp, clientMeeting.serverEditTimestamp))
+        meetingsUpdated.add(SyncData(clientMeeting.id, clientMeeting.updatedAtClient, clientMeeting.updatedAtServer))
       }
       else {
         meetingsToUpdate.add(serverMeeting)
@@ -169,7 +197,7 @@ class ContactService(
       meetingsToUpdate.add(meeting)
     }
 
-    return SynchronizeOutput(emptyList(), emptyList(), meetingsToUpdate, meetingsUpdated)
+    return SynchronizeOutput(emptyList(), emptyList(), meetingsToUpdate.map { it.toDto() }, meetingsUpdated.map { it.toDto() })
   }
 
   @Transactional
@@ -297,7 +325,7 @@ class ContactService(
   }
 
   @Transactional
-  fun generateTopics(meetingId: ObjectId, userId: ObjectId): Meeting {
+  fun generateTopics(meetingId: ObjectId, userId: ObjectId): MeetingDto {
     val curMeeting: Meeting? = meetingRepository.findById(meetingId).orElse(null)
     if (curMeeting == null) {
       throw NotFoundServerException("Meeting not found")
@@ -362,6 +390,6 @@ class ContactService(
     }
 
     meetingRepository.save(curMeeting)
-    return curMeeting
+    return curMeeting.toDto()
   }
 }
