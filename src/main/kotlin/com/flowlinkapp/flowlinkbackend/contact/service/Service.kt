@@ -28,8 +28,8 @@ import org.springframework.transaction.annotation.Transactional
 
 data class SyncData(
   val id: ObjectId,
-  val updatedAtClient: Long,
-  val updatedAtServer: Long?,
+  val clientEditTimestamp: Long,
+  val serverEditTimestamp: Long?,
 )
 
 data class SynchronizeInput(

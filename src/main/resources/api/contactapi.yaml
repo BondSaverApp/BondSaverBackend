@@ -85,10 +85,10 @@ components:
         id:
           type: string
           format: ObjectId
-        updatedAtClient:
+        clientEditTimestamp:
           type: integer
           format: int64
-        updatedAtServer:
+        serverEditTimestamp:
           type: integer
           format: int64
 
