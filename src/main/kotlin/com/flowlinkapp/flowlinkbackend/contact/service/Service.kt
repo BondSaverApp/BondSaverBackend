@@ -110,6 +110,9 @@ class ContactService(
       }
       val serverContact = contacts[clientContact.id]
       contactsNotMentioned.remove(clientContact.id)
+      if (serverContact == null || serverContact.clientEditTimestamp == clientContact.clientEditTimestamp) {
+        continue
+      }
       if (serverContact == null || serverContact.clientEditTimestamp < clientContact.clientEditTimestamp) {
         clientContact.updateServerTime()
         contactRepository.save(clientContact)
@@ -153,6 +156,9 @@ class ContactService(
       }
       val serverMeeting = meetings[clientMeeting.id]
       meetingsNotMentioned.remove(clientMeeting.id)
+      if (serverMeeting == null || serverMeeting.clientEditTimestamp == clientMeeting.clientEditTimestamp) {
+        continue
+      }
       if (serverMeeting == null || serverMeeting.clientEditTimestamp < clientMeeting.clientEditTimestamp) {
         clientMeeting.updateServerTime()
         meetingRepository.save(clientMeeting)
@@ -305,7 +311,7 @@ class ContactService(
     if (curMeeting.ownerId != userId) {
       throw UnauthorizedServerException("User is unauthorized to access this meeting")
     }
-    val meetings = meetingRepository.findByOwnerIdOrderByUpdatedAtClientDesc(userId)
+    val meetings = meetingRepository.findByOwnerIdOrderByClientEditTimestampDesc(userId)
     val meetingByContact = mutableMapOf<ObjectId, MutableList<Meeting>>()
     for (meeting in meetings) {
       for (contactId in curMeeting.contactIds) {
