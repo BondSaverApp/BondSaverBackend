@@ -18,5 +18,5 @@ service:
 server:
   port: 8081
 llm-provider:
-  token: your_token
+  token: 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
   host: https://openrouter.ai/api/v1/

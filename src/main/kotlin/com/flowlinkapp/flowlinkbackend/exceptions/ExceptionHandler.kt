@@ -20,7 +20,7 @@ class ExceptionHandlerAdvice{
           return ResponseEntity.status(e.statusCode()).body(RestException(
             e.statusCode(),
             e.name(),
-            null
+            e.cause?.message // todo: remove, send just null, otherwise it is unsafe!
           ))
         }
         else -> {

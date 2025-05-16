@@ -157,6 +157,7 @@ class ContactService(
   }
 
   private fun synchronizeMeetings(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
+    println("Synchronized input: $input")
     val meetingsList = meetingRepository.findByOwnerId(userId)
     val meetings = mutableMapOf<ObjectId, Meeting>()
     val meetingsNotMentioned = mutableSetOf<ObjectId>()
@@ -174,6 +175,7 @@ class ContactService(
       meetingsToUpdate.add(meeting)
     }
 
+    println("Original list of meetings from client: ${input.meetingUpdatesFromClient}, mapped: ${input.meetingUpdatesFromClient.map { it.toModel() }}")
     for (clientMeeting in input.meetingUpdatesFromClient.map { it.toModel() }) {
       if (clientMeeting.ownerId != userId) {
         throw UnauthorizedServerException("Client sent meeting not owned by client's user")
@@ -222,7 +224,7 @@ class ContactService(
 //    println("Input prompt is: $inputPrompt")
 
     val chatRequest = ChatCompletionRequest(
-      model = ModelId("deepseek/deepseek-chat-v3-0324:free"),
+      model = ModelId("meta-llama/llama-4-scout:free"),
       messages = listOf(
         ChatMessage(
           role = ChatRole.System,
@@ -319,21 +321,21 @@ class ContactService(
       )
     )
 
-//    println("Chat request is $chatRequest")
+    println("Chat request is $chatRequest")
 
-//    println("OpenAi builder started")
+    println("OpenAi builder started")
     val client = OpenAI(
       token = this.aiToken,
       host = OpenAIHost(this.aiHost)
     )
-//    println("OpenAi builder finished, client is: $client")
+    println("OpenAi builder finished, client is: $client")
 
     val completion = runBlocking {
       val response = client.chatCompletion(chatRequest)
-//      println("Raw response: ${response.choices[0].message.content}")
+      println("Raw response: ${response.choices[0].message.content}")
       response
     }
-//    println("completion finished")
+    println("completion finished")
 
     val markdownContent = completion.choices[0].message.content
     val cleanContent = markdownContent
@@ -341,8 +343,8 @@ class ContactService(
       ?.replace("\n```", "")
       ?.trim()
 
-//    println("Raw content: $markdownContent")
-//    println("Clean content: $cleanContent")
+    println("Raw content: $markdownContent")
+    println("Clean content: $cleanContent")
     val toReturn = Json.decodeFromString<TopicGenerationOutput>(
       cleanContent ?: ""
     )
@@ -363,16 +365,16 @@ class ContactService(
     val meetingByContact = mutableMapOf<ObjectId, MutableList<Meeting>>()
 //    println("Found ${meetings.size} meetings associated with this user")
     for (meeting in meetings) {
-//      println("for meeting $meeting")
+      println("for meeting $meeting")
       for (contactId in curMeeting.contactIds) {
-//        println("for contactId $contactId")
+        println("for contactId $contactId")
         val contactSize = meetingByContact[contactId]?.size
         if (contactSize != null && contactSize >= 2) {
           continue
         }
-//        println("Contact size with this contact is ok")
+        println("Contact size with this contact is ok")
         if (meeting.contactIds.contains(contactId)) {
-//          println("this meeting contains contact with id $contactId")
+          println("this meeting contains contact with id $contactId")
           if (meetingByContact.containsKey(contactId)) {
             meetingByContact[contactId]?.add(meeting)
           } else {
@@ -381,7 +383,7 @@ class ContactService(
         }
       }
     }
-//    println("Meetings with this contact found: $meetingByContact, size is ${meetingByContact.size}")
+    println("Meetings with this contact found: $meetingByContact, size is ${meetingByContact.size}")
 
     val contacts: MutableList<Contact> = contactRepository.findAllById(curMeeting.contactIds)
 //    println("How much contact found in db: ${curMeeting.contactIds.size}/${contacts.size}")
@@ -392,35 +394,35 @@ class ContactService(
 
     val previousTopics = mutableListOf<PreviousTopic>()
     for (contact in contacts) {
-//      println("For contact $contact")
+      println("For contact $contact")
       val meetings = meetingByContact[contact.id] ?: continue
-//      println("Associated meetings are $meetings")
+      println("Associated meetings are $meetings")
       for (meeting in meetings) {
-//        println("For meeting $meeting")
+        println("For meeting $meeting")
         for (topic in meeting.topics) {
-//          println("For topic $topic")
+          println("For topic $topic")
           val contactId: ObjectId? = if (topic.contactId != null) {
             topic.contactId
           } else if (meeting.contactIds.size == 1) {
             meeting.contactIds[0]
           } else null
-//          println("this topic is related to contact with id $contactId (null if not determined)")
+          println("this topic is related to contact with id $contactId (null if not determined)")
 
           val contact = contactsById[contactId]
 
-//          println("add to prev topics list this: contactId is ${contactId?.toString()}, " +
-//                  "contactName is ${contact?.name} ${contact?.surname}, question is ${topic.name}, answer is ${topic.answer}")
+          println("add to prev topics list this: contactId is ${contactId?.toString()}, " +
+                  "contactName is ${contact?.name} ${contact?.surname}, question is ${topic.name}, answer is ${topic.answer}")
           previousTopics.add(PreviousTopic(
             contactId?.toString(),
             "${contact?.name} ${contact?.surname}",
-            topic.name,
-            topic.description
+            "${topic.name}, ${topic.description}",
+            topic.answer ?: ""
           ))
         }
       }
     }
 
-//    println("prev topics: ${previousTopics}")
+    println("prev topics: ${previousTopics}")
     val generationTopics = TopicGenerationInput(previousTopics)
     val generatedTopics = getGeneratedTopics(generationTopics)
 

@@ -25,7 +25,11 @@ class TopicDto(
   var isGenerated: Boolean,
   var answer: String?,
   var contactId: String?,
-)
+) {
+  override fun toString(): String {
+    return "TopicDto(name='$name', description='$description', isGenerated=$isGenerated, answer=$answer, contactId=$contactId)"
+  }
+}
 
 @Document(collection = "meetings")
 class Meeting(
@@ -44,9 +48,9 @@ class Meeting(
     this.serverEditTimestamp = System.currentTimeMillis()
   }
 
-//  override fun toString(): String {
-//    return "Meeting(id=$id, clientEditTimestamp=$clientEditTimestamp, serverEditTimestamp=$serverEditTimestamp, deletionTimestamp=$deletionTimestamp, date=$date, description='$description', topics=$topics, contactIds=$contactIds, ownerId=$ownerId)"
-//  }
+  override fun toString(): String {
+    return "Meeting(id=$id, clientEditTimestamp=$clientEditTimestamp, serverEditTimestamp=$serverEditTimestamp, deletionTimestamp=$deletionTimestamp, date=$date, description='$description', topics=$topics, contactIds=$contactIds, ownerId=$ownerId)"
+  }
 
 
 }
@@ -61,7 +65,11 @@ class MeetingDto(
   var topics: List<TopicDto>,
   var contactsIds: List<String>,
   var ownerId: String,
-)
+) {
+  override fun toString(): String {
+    return "MeetingDto(id='$id', clientEditTimestamp=$clientEditTimestamp, serverEditTimestamp=$serverEditTimestamp, deletionTimestamp=$deletionTimestamp, date=$date, description='$description', topics=$topics, contactsIds=$contactsIds, ownerId='$ownerId')"
+  }
+}
 
 fun Meeting.toDto(): MeetingDto {
   return MeetingDto(
