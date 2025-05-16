@@ -224,7 +224,7 @@ class ContactService(
 //    println("Input prompt is: $inputPrompt")
 
     val chatRequest = ChatCompletionRequest(
-      model = ModelId("meta-llama/llama-4-scout:free"),
+      model = ModelId("meta-llama/llama-3.3-8b-instruct:free"),
       messages = listOf(
         ChatMessage(
           role = ChatRole.System,
