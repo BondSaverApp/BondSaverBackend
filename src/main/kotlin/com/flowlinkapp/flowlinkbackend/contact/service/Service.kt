@@ -185,11 +185,11 @@ class ContactService(
       }
       if (serverMeeting == null || serverMeeting.clientEditTimestamp < clientMeeting.clientEditTimestamp) {
         clientMeeting.updateServerTime()
+        println("save client meeting $clientMeeting")
         meetingRepository.save(clientMeeting)
         meetingsUpdated.add(SyncData(clientMeeting.id, clientMeeting.clientEditTimestamp,
           clientMeeting.serverEditTimestamp))
-      }
-      else {
+      } else {
         meetingsToUpdate.add(serverMeeting)
       }
     }
@@ -218,6 +218,8 @@ class ContactService(
 
   private fun getGeneratedTopics(inputTopics: TopicGenerationInput): TopicGenerationOutput {
     val inputPrompt = Json.encodeToString(inputTopics)
+//    println("Input topics are: $inputTopics")
+//    println("Input prompt is: $inputPrompt")
 
     val chatRequest = ChatCompletionRequest(
       model = ModelId("deepseek/deepseek-chat-v3-0324:free"),
@@ -229,7 +231,7 @@ class ContactService(
 
             Language: You need to understand and answer in fluent Russian.    
 
-            Format: Examples of conversations will be encoded in JSON format. One document will contain one or more contact objects which contains contact's id, name and one or more conversation examples. You must emit valid JSON compliant with given schema which contains suggested conversation topics for each given example.  
+            Format: Examples of conversations will be encoded in JSON format. One document will contain one or more contact objects which contains contact's id, name and one or more conversation examples. You must emit valid RAW JSON compliant with given schema which contains suggested conversation topics for each given example.  
           """.trimIndent()
         ),
         ChatMessage(
@@ -317,15 +319,34 @@ class ContactService(
       )
     )
 
+//    println("Chat request is $chatRequest")
+
+//    println("OpenAi builder started")
     val client = OpenAI(
       token = this.aiToken,
       host = OpenAIHost(this.aiHost)
     )
+//    println("OpenAi builder finished, client is: $client")
 
-    val completion = runBlocking { client.chatCompletion(chatRequest) }
-    return Json.decodeFromString<TopicGenerationOutput>(
-      completion.choices[0].message.messageContent.toString()
+    val completion = runBlocking {
+      val response = client.chatCompletion(chatRequest)
+//      println("Raw response: ${response.choices[0].message.content}")
+      response
+    }
+//    println("completion finished")
+
+    val markdownContent = completion.choices[0].message.content
+    val cleanContent = markdownContent
+      ?.replace("```json\n", "")
+      ?.replace("\n```", "")
+      ?.trim()
+
+//    println("Raw content: $markdownContent")
+//    println("Clean content: $cleanContent")
+    val toReturn = Json.decodeFromString<TopicGenerationOutput>(
+      cleanContent ?: ""
     )
+    return toReturn
   }
 
   @Transactional
@@ -334,24 +355,36 @@ class ContactService(
     if (curMeeting == null) {
       throw NotFoundServerException("Meeting not found")
     }
+//    println("Current meeting non-null")
     if (curMeeting.ownerId != userId) {
       throw UnauthorizedServerException("User is unauthorized to access this meeting")
     }
     val meetings = meetingRepository.findByOwnerIdOrderByClientEditTimestampDesc(userId)
     val meetingByContact = mutableMapOf<ObjectId, MutableList<Meeting>>()
+//    println("Found ${meetings.size} meetings associated with this user")
     for (meeting in meetings) {
+//      println("for meeting $meeting")
       for (contactId in curMeeting.contactIds) {
+//        println("for contactId $contactId")
         val contactSize = meetingByContact[contactId]?.size
         if (contactSize != null && contactSize >= 2) {
           continue
         }
+//        println("Contact size with this contact is ok")
         if (meeting.contactIds.contains(contactId)) {
-          meetingByContact[contactId]?.add(meeting)
+//          println("this meeting contains contact with id $contactId")
+          if (meetingByContact.containsKey(contactId)) {
+            meetingByContact[contactId]?.add(meeting)
+          } else {
+            meetingByContact.put(contactId, mutableListOf(meeting))
+          }
         }
       }
     }
+//    println("Meetings with this contact found: $meetingByContact, size is ${meetingByContact.size}")
 
     val contacts: MutableList<Contact> = contactRepository.findAllById(curMeeting.contactIds)
+//    println("How much contact found in db: ${curMeeting.contactIds.size}/${contacts.size}")
     val contactsById: MutableMap<ObjectId, Contact> = mutableMapOf()
     for (contact in contacts) {
       contactsById[contact.id] = contact
@@ -359,17 +392,24 @@ class ContactService(
 
     val previousTopics = mutableListOf<PreviousTopic>()
     for (contact in contacts) {
+//      println("For contact $contact")
       val meetings = meetingByContact[contact.id] ?: continue
+//      println("Associated meetings are $meetings")
       for (meeting in meetings) {
+//        println("For meeting $meeting")
         for (topic in meeting.topics) {
+//          println("For topic $topic")
           val contactId: ObjectId? = if (topic.contactId != null) {
             topic.contactId
           } else if (meeting.contactIds.size == 1) {
             meeting.contactIds[0]
           } else null
+//          println("this topic is related to contact with id $contactId (null if not determined)")
 
           val contact = contactsById[contactId]
 
+//          println("add to prev topics list this: contactId is ${contactId?.toString()}, " +
+//                  "contactName is ${contact?.name} ${contact?.surname}, question is ${topic.name}, answer is ${topic.answer}")
           previousTopics.add(PreviousTopic(
             contactId?.toString(),
             "${contact?.name} ${contact?.surname}",
@@ -380,6 +420,7 @@ class ContactService(
       }
     }
 
+//    println("prev topics: ${previousTopics}")
     val generationTopics = TopicGenerationInput(previousTopics)
     val generatedTopics = getGeneratedTopics(generationTopics)
 

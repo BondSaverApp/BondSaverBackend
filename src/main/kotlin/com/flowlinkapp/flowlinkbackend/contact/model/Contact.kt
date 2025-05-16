@@ -75,6 +75,12 @@ class Contact(
   fun updateServerTime() {
     serverEditTimestamp = System.currentTimeMillis()
   }
+
+//  override fun toString(): String {
+//    return "Contact(id=$id, clientEditTimestamp=$clientEditTimestamp, serverEditTimestamp=$serverEditTimestamp, deletionTimestamp=$deletionTimestamp, name='$name', surname=$surname, patronymic=$patronymic, photoPath='$photoPath', placeOfMeeting=$placeOfMeeting, tags=$tags, telephones=$telephones, dates=$dates, socialNetworkNetworks=$socialNetworkNetworks, professions=$professions, emails=$emails, appearance=$appearance, contextOfMeeting=$contextOfMeeting, city=$city, street=$street, house=$house, flat=$flat, notes=$notes, site=$site, ownerId=$ownerId)"
+//  }
+
+
 }
 
 class ContactDto(

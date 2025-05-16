@@ -11,7 +11,13 @@ class Topic(
   var isGenerated: Boolean,
   var answer: String?,
   var contactId: ObjectId?,
-)
+
+
+) {
+  override fun toString(): String {
+    return "Topic(name='$name', description='$description', isGenerated=$isGenerated, answer=$answer, contactId=$contactId)"
+  }
+}
 
 class TopicDto(
   var name: String,
@@ -37,6 +43,12 @@ class Meeting(
   fun updateServerTime() {
     this.serverEditTimestamp = System.currentTimeMillis()
   }
+
+//  override fun toString(): String {
+//    return "Meeting(id=$id, clientEditTimestamp=$clientEditTimestamp, serverEditTimestamp=$serverEditTimestamp, deletionTimestamp=$deletionTimestamp, date=$date, description='$description', topics=$topics, contactIds=$contactIds, ownerId=$ownerId)"
+//  }
+
+
 }
 
 class MeetingDto(
