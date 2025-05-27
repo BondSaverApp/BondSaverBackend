@@ -28,6 +28,22 @@ class NotFoundServerException(
   }
 }
 
+class BadRequestServerException(
+  override val message: String?,
+  override val cause: Throwable?,
+): ServerException(message, cause) {
+  constructor(): this(null, null)
+  constructor(message: String?): this(message, null)
+  constructor(cause: Throwable?): this(null, cause)
+
+  override fun statusCode(): Int {
+    return 400
+  }
+  override fun name(): String {
+    return "Bad request"
+  }
+}
+
 class UnauthenticatedServerException(
   override val message: String?,
   override val cause: Throwable?,

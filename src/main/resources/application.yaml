@@ -14,9 +14,17 @@ service:
     accessTokenExpiration: 86400
     refreshTokenExpiration: 2592000
     # change it for production deploy
-    secret: "a6l9vg2PrYRSFcXZBOUnECJoiBxjn4lE-hDxrIpKO67yPBPqFypQQBsfT7GiyIpw8_gzvi2XQHWCgg0nEJa-Idyo6jv6ylRBxy3uxmc9E0l2cTfTznSNNpm1VGM8u67r72glGMfVD7fBbIoFFRxbF-zWXoRj8ULlTcGZjVZc0GimUeT0AqT83kK6m-rh-vsNTF_X_ROErumRemUGNZiUcrhRY5YePx8hRWJvYq7eDntZM_wdE5I-jnNhadkkyfcy5Eyy1FskhQWnfe2YOygwkfcTh2NqjMtfQQyBZyjnLOHi_IDPPJ4TBJqIesf1U-moCuNxgJ79SNx4B9NHK_jpXgcdu__yVE1Z-MeTam9_A0JOjvxyB3amYFAg0-gLxAq1bW3KA7iER2WbGUtuPI_cW1JgDW2Raeg8NiuwVSrQEDjhEVwhgU-uC9BQ76k-XHgOz3ne41h9QZnQE5B3V4Go8VzdqHdUqutYTR3ts630vgdlRqXXKmbTytZNVqsUNRHQudqQlPN_I4kT6gjBBRDZY7_VRMD5lm70-rhNTSyKRlrQqGLIGr5g9fQ_Gld1CssogWBAbU7bHoMVT7yLD8o32u9yxAuAqKbb-NfOhPzXOAlO8P3tyYKX09Og_UTvoiL_2DMsfYb93BpVaQlx94A_T4VDUk7i6E-SLNLm6VzMXtA="
+    secret: 'secret'
 server:
   port: 8081
+s3:
+  host: https://bondsaver.s3.cloud.ru
+  # change it for production deploy
+  accessKey: 'accesskey'
+  # change it for production deploy
+  secretKey: 'secretKey'
+  bucket: bondsaver
 llm-provider:
-  token: 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
+  # change it for production deploy
+  token: 'token'
   host: https://openrouter.ai/api/v1/

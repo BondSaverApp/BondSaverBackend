@@ -19,6 +19,8 @@ import com.flowlinkapp.flowlinkbackend.contact.repository.ContactRepository
 import com.flowlinkapp.flowlinkbackend.contact.repository.MeetingRepository
 import com.flowlinkapp.flowlinkbackend.exceptions.NotFoundServerException
 import com.flowlinkapp.flowlinkbackend.exceptions.UnauthorizedServerException
+import io.minio.MinioClient
+import io.minio.PutObjectArgs
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -29,6 +31,8 @@ import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
+import java.util.UUID
 
 data class SyncData(
   val id: ObjectId,
@@ -68,6 +72,10 @@ data class SynchronizeOutput(
   val meetingsUpdated: List<SyncDataDto>,
 )
 
+data class UploadedObjects(
+  val uploaded: List<String>
+)
+
 @Serializable
 data class PreviousTopic(
   @EncodeDefault
@@ -102,12 +110,16 @@ data class TopicGenerationOutput(
 class ContactService(
   val contactRepository: ContactRepository,
   val meetingRepository: MeetingRepository,
+  val minioClient: MinioClient,
+  @Value("\${s3.bucket}")
+  val bucketName: String,
 
   @Value("\${llm-provider.token}")
   val aiToken: String,
   @Value("\${llm-provider.host}")
   val aiHost: String,
 ) {
+  @Transactional
   private fun synchronizeContacts(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
     val contactsList = contactRepository.findByOwnerId(userId)
     val contacts = mutableMapOf<ObjectId, Contact>()
@@ -156,6 +168,7 @@ class ContactService(
       contactsUpdated.map { it.toDto() }, emptyList(), emptyList())
   }
 
+  @Transactional
   private fun synchronizeMeetings(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
     println("Synchronized input: $input")
     val meetingsList = meetingRepository.findByOwnerId(userId)
@@ -206,7 +219,6 @@ class ContactService(
       meetingsToUpdate.map { it.toDto() }, meetingsUpdated.map { it.toDto() })
   }
 
-  @Transactional
   fun synchronize(input: SynchronizeInput, userId: ObjectId): SynchronizeOutput {
     val syncContacts = synchronizeContacts(input, userId)
     val syncMeetings = synchronizeMeetings(input, userId)
@@ -438,5 +450,22 @@ class ContactService(
 
     meetingRepository.save(curMeeting)
     return curMeeting.toDto()
+  }
+
+  fun uploadFiles(files: List<MultipartFile>): UploadedObjects {
+    return UploadedObjects(
+     uploaded = files.map { file ->
+       val objectName = UUID.randomUUID().toString() + "-" + file.originalFilename
+       minioClient.putObject(
+         PutObjectArgs.builder()
+           .bucket(bucketName)
+           .`object`(objectName)
+           .stream(file.inputStream, file.size, -1)
+           .contentType(file.contentType)
+           .build()
+       )
+       objectName
+     }
+    )
   }
 }

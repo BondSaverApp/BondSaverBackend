@@ -40,5 +40,7 @@ out/
 ### Kotlin ###
 .kotlin
 
+application.yaml
+
 .envrc
 .direnv/

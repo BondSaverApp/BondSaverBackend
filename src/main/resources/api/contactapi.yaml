@@ -39,8 +39,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Meeting'
+  paths:
+    /api/contact/upload:
+      post:
+        summary: Upload multiple files
+        description: Uploads multiple files as multipart/form-data and stores them in an S3-compatible store.
+        operationId: uploadMultipleFiles
+        requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: string
+                      format: binary
+                required:
+                  - files
+        responses:
+          '200':
+            description: Files uploaded successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UploadedObjects'
 components:
   schemas:
+    UploadedObjects:
+      type: object
+      properties:
+        uploaded:
+          type: array
+          items:
+            type: string
     SynchronizeInput:
       type: object
       properties:
