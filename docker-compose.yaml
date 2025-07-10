@@ -2,11 +2,13 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb.flowlink
-    ports:
-      - "27017:27017"
+    # Remove external port mapping to restrict access to internal network
+    # ports:
+    #   - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=example
+      # Use a stronger password for production
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-root}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-secure_random_password_123}
     tmpfs:
       - /data/db
     healthcheck:
@@ -15,6 +17,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - flowlink-network
 
   backend:
     build:
@@ -24,8 +28,16 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://root:example@mongodb.flowlink:27017/flowlink?authSource=admin
+      # Reference MongoDB by service name within the same network
+      - SPRING_DATA_MONGODB_URI=mongodb://${MONGO_USERNAME:-root}:${MONGO_PASSWORD:-secure_random_password_123}@mongodb.flowlink:27017/flowlink?authSource=admin
     depends_on:
       mongodb:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - flowlink-network
+
+# Define an internal network for communication between services
+networks:
+  flowlink-network:
+    driver: bridge
